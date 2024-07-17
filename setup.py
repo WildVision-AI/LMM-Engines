@@ -1,0 +1,37 @@
+from setuptools import setup, find_packages
+
+setup(
+    name='lmm_engines',
+    version='0.0.1',
+    description='',
+    author='Dongfu Jiang',
+    author_email='dongfu.jiang@uwaterloo.ca',
+    packages=find_packages(),
+    url='https://github.com/jdf-prog/LMM-Engines',
+    install_requires=[
+        "fire",
+        "openai",
+        "google-generativeai",
+        "accelerate",
+        "transformers",
+        "torch",
+        "Pillow",
+        "torch",
+        "tqdm",
+        "numpy",
+        "requests",
+        "sentencepiece",
+        "vllm",
+        "together",
+        "icecream",
+        "prettytable",
+        "sglang[all]",
+        "mistralai",
+        "anthropic",
+        "peft",
+        "decord",
+        "matplotlib",
+        "transformers_stream_generator",
+        "einops"
+    ],
+)
