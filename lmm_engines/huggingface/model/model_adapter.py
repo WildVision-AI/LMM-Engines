@@ -86,6 +86,12 @@ class BaseModelAdapter:
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("one_shot")
+    
+    def generate(self, params:List[dict]):
+        pass
+    
+    def generate_stream(self, params:List[dict], stream_interval:int):
+        pass
 
 
 # A global registry for all model adapters
@@ -545,8 +551,8 @@ def load_model(
         kwargs["torch_dtype"] = dtype
 
     # Load model
-    model, tokenizer = adapter.load_model(model_path, kwargs)
-    if model and tokenizer:
+    model = adapter.load_model(model_path, kwargs)
+    if model:
         if (
             device == "cpu"
             and kwargs["torch_dtype"] is torch.bfloat16
@@ -572,7 +578,7 @@ def load_model(
     if debug:
         print(model)
 
-    return model, tokenizer
+    return model
 
 
 def get_conversation_template(model_path: str) -> Conversation:

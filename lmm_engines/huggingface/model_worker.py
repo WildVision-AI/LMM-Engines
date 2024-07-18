@@ -117,11 +117,11 @@ class ModelWorker(BaseModelWorker):
                 model_path,
                 device=device,            
             )
-        elif self.is_tinyllava_stream:
-            self.model = load_tinyllava_pretrained_model(
-                model_path,
-                device=device,              
-            )
+        # elif self.is_tinyllava_stream:
+        #     self.model = load_tinyllava_pretrained_model(
+        #         model_path,
+        #         device=device,              
+        #     )
         elif self.is_deepseekvl_stream:
             self.model, self.tokenizer, self.image_processor = load_deepseekvl_pretrained_model(
                 model_path,           
@@ -160,7 +160,7 @@ class ModelWorker(BaseModelWorker):
             from .model.vlm_utils.videollama2.model.builder import load_pretrained_model
             self.tokenizer, self.model, self.processor, _ = load_pretrained_model(model_path, None, model_name, load_8bit, load_4bit)
         else:
-            self.model, self.tokenizer = load_model(
+            self.model = load_model(
                 model_path,
                 revision=revision,
                 device=device,
@@ -174,12 +174,12 @@ class ModelWorker(BaseModelWorker):
         
 
         self.device = device
-        if self.tokenizer is not None and self.tokenizer.pad_token == None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-        try:
-            self.context_len = get_context_length(self.model.config)
-        except:
-            self.context_len = 1024
+        # if self.tokenizer is not None and self.tokenizer.pad_token == None:
+        #     self.tokenizer.pad_token = self.tokenizer.eos_token
+        # try:
+        #     self.context_len = get_context_length(self.model.config)
+        # except:
+        #     self.context_len = 1024
         # self.generate_stream_func = get_generate_stream_function(self.model, model_path)
         self.generate_stream_func = get_generate_stream_function(model_path)
         self.stream_interval = stream_interval
@@ -391,9 +391,13 @@ class ModelWorker(BaseModelWorker):
             yield json.dumps(ret).encode() + b"\0"
 
     def generate_gate(self, params):
-        for x in self.generate_stream_gate(params):
-            pass
-        return json.loads(x[:-1].decode())
+        print(params)
+        resposne = self.adapter.generate(params)
+        return resposne
+        
+        # for x in self.generate_stream_gate(params):
+        #     pass
+        # return json.loads(x[:-1].decode())
 
     def __process_embed_chunk(self, input_ids, attention_mask, **model_type_dict):
         if model_type_dict.get("is_bert"):
