@@ -106,7 +106,6 @@ def get_call_worker_func(
                     dtype=dtype)
                 worker_addrs.append(worker_addr)
                 workers.append(worker)
-            atexit.register(lambda: [cleanup_process(proc) for proc in workers])
         else:
             print(f"Using existing worker at {worker_addrs}")
             if not isinstance(worker_addrs, list):
@@ -146,7 +145,7 @@ def cleanup_process(proc):
     os.kill(proc.pid, signal.SIGTERM)
     print("Subprocess terminated.")
     
+@atexit.register
 def cleanup_all_workers():
     for worker in workers:
         cleanup_process(worker)
-    print("All workers terminated.")

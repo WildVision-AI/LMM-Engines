@@ -2,7 +2,41 @@ from openai import OpenAI
 from typing import List
 
 # no image, multi-turn, do not use openai_generate, but can refer to it
-def call_worker_openai(messages:List[str], model_name, conv_system_msg=None, **generate_kwargs) -> str:
+def call_worker_openai(messages:List[dict], model_name, **generate_kwargs) -> str:
+    """
+    Call a model worker with a list of messages
+    Args:
+        messages: a list of messages
+            [
+                {"role": "user", "content": [
+                    {
+                        "type": "text",
+                        "text": "Hello, how are you?"
+                    },
+                    {
+                        "type": "image",
+                        "image": "{base64 encoded image}"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": "https://example.com/image.jpg"
+                    },
+                    {
+                        "type": "video",
+                        "video": "{base64 encoded video}"
+                    },
+                    {
+                        "type": "video_url",
+                        "video_url": "https://example.com/video.mp4"
+                    },
+                    ...
+                ]
+            ]
+        model_name: the model name to call
+        worker_addrs: a list of worker addresses
+        generate_kwargs: additional keyword arguments for the generation
+    """
+    raise NotImplementedError("This function is not implemented yet")
     # change messages to openai format
     new_messages = []
     if conv_system_msg:
@@ -18,17 +52,6 @@ def call_worker_openai(messages:List[str], model_name, conv_system_msg=None, **g
         **generate_kwargs,
     )
     return response.choices[0].message.content
-
-def call_worker_openai_completion(prompt:str, model_name, **generate_kwargs) -> str:
-    # initialize openai client
-    client = OpenAI()
-    # call openai
-    response = client.completions.create(
-        model=model_name,
-        prompt=prompt,
-        **generate_kwargs,
-    )
-    return response.choices[0].text
 
 if __name__ == "__main__":
     from icecream import ic

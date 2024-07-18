@@ -160,7 +160,7 @@ class ModelWorker(BaseModelWorker):
             from .model.vlm_utils.videollama2.model.builder import load_pretrained_model
             self.tokenizer, self.model, self.processor, _ = load_pretrained_model(model_path, None, model_name, load_8bit, load_4bit)
         else:
-            self.model = load_model(
+            self.adapter = load_model(
                 model_path,
                 revision=revision,
                 device=device,
@@ -171,6 +171,7 @@ class ModelWorker(BaseModelWorker):
                 cpu_offloading=cpu_offloading,
                 debug=debug,
             )
+            # self.model = self.adapter.model
         
 
         self.device = device
@@ -391,7 +392,6 @@ class ModelWorker(BaseModelWorker):
             yield json.dumps(ret).encode() + b"\0"
 
     def generate_gate(self, params):
-        print(params)
         resposne = self.adapter.generate(params)
         return resposne
         

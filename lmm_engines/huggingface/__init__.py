@@ -108,6 +108,12 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
     assert num_videos <= 1, "Only one video is supported for now"
     assert num_images + num_videos <= 1, "Only one image or video is supported for now"
     
+    # huggingface do not accept max_tokens, only max_new_tokens
+    if "max_tokens" in generate_kwargs:
+        if "max_new_tokens" not in generate_kwargs:
+            generate_kwargs["max_new_tokens"] = generate_kwargs["max_tokens"]
+        del generate_kwargs["max_tokens"]
+        
     text = [_content["text"] for _content in messages[0]["content"] if _content["type"] == "text"][0]
     params = {
         "prompt": {
@@ -133,7 +139,6 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
     while True:
         try:
             worker_details = requests.post(worker_addr + "/model_details").json()
-            print(worker_details)
             if model_name not in worker_details["model_names"] and model_name.split('/')[-1] not in worker_details["model_names"]:
                 raise ValueError(f"Model {model_name} not found in worker {worker_addr}. Available models on this address: {worker_details['model_names']}")
             # starlette StreamingResponse
@@ -159,12 +164,11 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
         except requests.exceptions.RequestException as e:
             print("Unknown request exception: ", e, "retrying...")
             time.sleep(5)
-    print(response.content.decode("utf-8"))
     try:
         generated_text = json.loads(response.content.decode("utf-8"))['text']
         generated_text = generated_text.strip("\n ")
     except Exception as e:
-        raise e
-        print("Error in worker response: ", e)
-        generated_text = "**RESPONSE DECODING ERROR**"
+        generated_text = response.content.decode("utf-8")
+        # print("Error in worker response: ", e)
+        # generated_text = "**RESPONSE DECODING ERROR**"
     return generated_text

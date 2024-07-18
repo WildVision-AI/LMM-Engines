@@ -23,6 +23,9 @@ from transformers import (
 from ..constants import CPU_ISA
 from ..conversation import Conversation, get_conv_template
 from ..utils import get_gpu_memory
+from ...utils import decode_image
+from transformers import TextIteratorStreamer
+from threading import Thread
 
 from icecream import ic
 
@@ -70,28 +73,66 @@ class BaseModelAdapter:
     def match(self, model_path: str):
         return True
 
-    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
-        revision = from_pretrained_kwargs.get("revision", "main")
-        try:
-            tokenizer = AutoTokenizer.from_pretrained(
-                model_path,
-                use_fast=self.use_fast_tokenizer,
-                revision=revision,
-                trust_remote_code=True,
-            )
-        except TypeError:
-            tokenizer = AutoTokenizer.from_pretrained(
-                model_path, use_fast=False, revision=revision, trust_remote_code=True
-            )
+    def load_model(self, model_path: str, device:str, from_pretrained_kwargs: dict={}):
+        # self.model = ...
+        # self.processor = ...
+        # return self.model
+        pass
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("one_shot")
     
     def generate(self, params:List[dict]):
-        pass
+        # extract params
+        prompt = params["prompt"]["text"]
+        image = decode_image(params["prompt"]["image"])
+        
+        # format generation kwargs
+        default_generation_kwargs = {"max_new_tokens": 200, "temperature": 0.2, "top_p": 0.7}
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        default_generation_kwargs.update(generation_kwargs)
+        generation_kwargs = default_generation_kwargs
+        generation_kwargs["do_sample"] = generation_kwargs["temperature"] > 0.0
+        
+        # format inputs
+        prompt = ... # format the prompt
+        inputs = self.processor(prompt, image, return_tensors='pt').to(self.model.device, self.torch_dtype)
+        
+        # generation
+        outputs = self.model.generate(**inputs, **generation_kwargs)
+        generated_text = self.processor.decode(outputs[0], skip_special_tokens=True)
+        return {"text": generated_text}
     
-    def generate_stream(self, params:List[dict], stream_interval:int):
-        pass
+    def generate_stream(self, params:List[dict]):
+        # extract params
+        prompt = params["prompt"]["text"]
+        image = decode_image(params["prompt"]["image"])
+        
+        # format generation kwargs
+        default_generation_kwargs = {"max_new_tokens": 1024, "temperature": 0.0, "top_p": 1.0}
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        default_generation_kwargs.update(generation_kwargs)
+        generation_kwargs = default_generation_kwargs
+        generation_kwargs["do_sample"] = generation_kwargs["temperature"] > 0.0
+        
+        # add streamer
+        streamer = TextIteratorStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
+        generation_kwargs["streamer"] = streamer
+        
+        # format prompt and generation
+        prompt = ... # format the prompt
+        inputs = self.processor(prompt, image, return_tensors='pt').to(self.model.device, self.torch_dtype)
+        
+        # generation
+        thread = Thread(target=self.model.generate, kwargs={**inputs, **generation_kwargs})
+        thread.start()
+        
+        generated_text = ""
+        for text in streamer:
+            generated_text += text
+            yield {"text": generated_text}
 
 
 # A global registry for all model adapters
@@ -193,17 +234,6 @@ def load_blip_pretrained_model(
     model.to(device=device)
 
     return model, processor
-
-
-def load_tinyllava_pretrained_model(
-    model_path: str,
-    device: str = "cuda",
-):
-    from transformers import AutoModel, AutoProcessor
-    from transformers import pipeline
-    model_id = model_path
-    pipe = pipeline("image-to-text", model=model_id, device=device)
-    return pipe
 
 
 def load_deepseekvl_pretrained_model(
@@ -551,7 +581,8 @@ def load_model(
         kwargs["torch_dtype"] = dtype
 
     # Load model
-    model = adapter.load_model(model_path, kwargs)
+    adapter.load_model(model_path, device, kwargs)
+    model = adapter.model
     if model:
         if (
             device == "cpu"
@@ -578,7 +609,7 @@ def load_model(
     if debug:
         print(model)
 
-    return model
+    return adapter
 
 
 def get_conversation_template(model_path: str) -> Conversation:
@@ -601,7 +632,6 @@ def get_generate_stream_function(model_path: str):
     is_qwenvl_stream = "qwen-vl-chat" in model_path.lower()
     is_blip_stream = "blip" in model_path.lower()
     is_uform_stream = "uform" in model_path.lower()
-    is_tinyllava_stream = "tiny-llava" in model_path.lower()
     is_deepseekvl_stream = "deepseek-vl" in model_path.lower()
     is_bunny_stream = "bunny" in model_path.lower()
     is_yivl_stream = "yi-vl" in model_path.lower()
@@ -627,9 +657,6 @@ def get_generate_stream_function(model_path: str):
     elif is_uform_stream:
         from .model_uform import generate_stream_uform
         return generate_stream_uform
-    elif is_tinyllava_stream:
-        from .model_tinyllava import generate_stream_tinyllava
-        return generate_stream_tinyllava
     elif is_deepseekvl_stream:
         from .model_deepseekvl import generate_stream_deepseekvl
         return generate_stream_deepseekvl
@@ -826,15 +853,6 @@ class UFormAdapter(BaseModelAdapter):
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("uform")
-
-class TinyLLaVAAdapter(BaseModelAdapter):
-    """The model adapter for TinyLLaVA"""
-
-    def match(self, model_path: str):
-        return "tiny-llava" in model_path.lower()
-
-    def get_default_conv_template(self, model_path: str) -> Conversation:
-        return get_conv_template("tiny-llava")
     
 class DeepSeekVLAdapter(BaseModelAdapter):
     """The model adapter for DeepSeekVL"""
@@ -964,6 +982,7 @@ register_model_adapter(InstructBLIPAdapter)
 register_model_adapter(CogVLMAdapter)
 register_model_adapter(MiniCPMAdapter)
 register_model_adapter(UFormAdapter)
+from .model_tinyllava import TinyLLaVAAdapter
 register_model_adapter(TinyLLaVAAdapter)
 register_model_adapter(DeepSeekVLAdapter)
 register_model_adapter(BunnyAdapter)
