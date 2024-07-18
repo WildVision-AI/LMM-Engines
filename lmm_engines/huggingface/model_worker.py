@@ -22,7 +22,6 @@ from .model.model_adapter import (
     load_blip_pretrained_model,
     load_uform_pretrained_model,
     load_idefics_pretrained_model,
-    load_tinyllava_pretrained_model,
     load_deepseekvl_pretrained_model,
     load_bunny_pretrained_model,
     load_yivl_pretrained_model,

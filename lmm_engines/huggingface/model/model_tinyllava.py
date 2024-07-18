@@ -10,26 +10,6 @@ from transformers import AutoTokenizer, AutoModel, AutoProcessor, pipeline, Text
 from threading import Thread
 from typing import List
 
-def shorten_messages(messages:List[dict]):
-    new_messages = []
-    for message in messages:
-        new_message = {
-            "role": message["role"],
-            "content": []
-        }
-        for _content in message["content"]:
-            if _content["type"] != 'text' and len(str(_content[_content["type"]])) > 100:
-                new_message["content"].append({
-                    "type": _content["type"],
-                    _content["type"]: str(_content[_content["type"]])[:100] + "..."
-                })
-            else:
-                new_message["content"].append(_content)
-        new_messages.append(new_message)
-    return new_messages
-
-
-
 class TinyLLaVAAdapter(BaseModelAdapter):
     """The model adapter for TinyLLaVA"""
 
@@ -153,3 +133,6 @@ if __name__ == "__main__":
     model_adapter.load_model(model_path, device, from_pretrained_kwargs)
     test_adapter(model_adapter)
     
+"""
+python -m lmm_engines.huggingface.model.model_tinyllava
+"""

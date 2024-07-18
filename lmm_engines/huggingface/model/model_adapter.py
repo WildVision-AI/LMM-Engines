@@ -982,8 +982,6 @@ register_model_adapter(InstructBLIPAdapter)
 register_model_adapter(CogVLMAdapter)
 register_model_adapter(MiniCPMAdapter)
 register_model_adapter(UFormAdapter)
-from .model_tinyllava import TinyLLaVAAdapter
-register_model_adapter(TinyLLaVAAdapter)
 register_model_adapter(DeepSeekVLAdapter)
 register_model_adapter(BunnyAdapter)
 register_model_adapter(YiVLAdapter)
@@ -997,3 +995,8 @@ register_model_adapter(LLaVANeXTAdapter)
 register_model_adapter(VideoLLaMA2Adapter)
 # After all adapters, try the default base adapter.
 register_model_adapter(BaseModelAdapter)
+
+
+## New
+from .model_tinyllava import TinyLLaVAAdapter
+register_model_adapter(TinyLLaVAAdapter)
