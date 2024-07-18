@@ -1,8 +1,5 @@
 # LMM-Engines
 
-CUDA_VISIBLE_DEVICES=0 python3 -m lmm_engines.huggingface.model_worker --model-path Qwen/Qwen-VL-Chat --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1 &
-
-
 ## Usage
 
 - Start a new worker for local inference
