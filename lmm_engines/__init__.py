@@ -4,6 +4,7 @@ import json
 import random
 import atexit
 import signal
+import psutil
 from functools import partial
 from .utils import generation_cache_wrapper, retry_on_failure
 from .utils import shorten_messages
@@ -140,9 +141,32 @@ def get_call_worker_func(
     call_model_worker = retry_on_failure(call_model_worker, num_retries=max_retry)
     return call_model_worker
 
+
+def kill_process_and_children(pid):
+    try:
+        parent = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+        print(f"No process with PID {pid} found.")
+        return
+
+    children = parent.children(recursive=True)
+    for child in children:
+        try:
+            child.kill()
+            # print(f"Killed child process {child.pid}")
+        except psutil.NoSuchProcess:
+            print(f"Child process {child.pid} already terminated.")
+    
+    try:
+        parent.kill()
+        # print(f"Killed parent process {pid}")
+    except psutil.NoSuchProcess:
+        print(f"Parent process {pid} already terminated.")
+        
 def cleanup_process(proc):
     # os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
-    os.kill(proc.pid, signal.SIGTERM)
+    # os.kill(proc.pid, signal.SIGTERM)
+    kill_process_and_children(proc.pid)
     print("Subprocess terminated.")
     
 @atexit.register
