@@ -1,7 +1,7 @@
 import os
 import time
 import torch
-import urllib
+import random
 import openai
 import importlib.util
 from pathlib import Path
@@ -100,10 +100,7 @@ def call_sglang_worker(messages, model_name, worker_addrs, conv_system_msg=None,
 
     prompt = chat_tokenizer(chat_messages)
 
-    if not hasattr(call_sglang_worker, "worker_id_to_call"):
-        call_sglang_worker.worker_id_to_call = 0
-    call_sglang_worker.worker_id_to_call = (call_sglang_worker.worker_id_to_call + 1) % len(worker_addrs)
-    worker_addr = worker_addrs[call_sglang_worker.worker_id_to_call]
+    worker_addr = random.choice(worker_addrs)
     
     client = openai.OpenAI(
         base_url=f"{worker_addr}/v1",
@@ -128,82 +125,3 @@ def call_sglang_worker(messages, model_name, worker_addrs, conv_system_msg=None,
             continue
     
     return completion.choices[0].message.content
-
-def call_sglang_worker_completion(prompt:str, model_name, worker_addrs, **generate_kwargs) -> str:
-    global worker_initiated
-    
-    if not hasattr(call_sglang_worker_completion, "worker_id_to_call"):
-        call_sglang_worker_completion.worker_id_to_call = 0
-    call_sglang_worker_completion.worker_id_to_call = (call_sglang_worker_completion.worker_id_to_call + 1) % len(worker_addrs)
-    worker_addr = worker_addrs[call_sglang_worker_completion.worker_id_to_call]
-    
-    client = openai.OpenAI(
-        base_url=f"{worker_addr}/v1",
-        api_key="sglang-engine-token",
-    )
-    
-    generate_kwargs['max_tokens'] = generate_kwargs['max_tokens'] or 4092 # for sglang, max_tokens is required and must > 0
-    while True:
-        try:
-            completion = client.completions.create(
-                model=model_name,
-                prompt=prompt,
-                **generate_kwargs,
-            )
-            break
-        except openai.APIConnectionError as e:
-            if not worker_initiated:
-                time.sleep(5)
-                continue
-            print(f"API connection error: {e}")
-            time.sleep(5)
-            continue
-    
-    return completion.choices[0].text
-
-    
-# chat_tokenizers = {}
-# def call_sglang_worker(messages:List[str], model_name, worker_addrs, conv_system_msg=None, **generate_kwargs) -> str:
-#     global worker_initiated
-#     global chat_tokenizers
-    
-#     if model_name not in chat_tokenizers:
-#         chat_tokenizers[model_name] = ChatTokenizer(model_name)
-#     chat_tokenizer = chat_tokenizers[model_name]
-#     prompt = chat_tokenizer(messages)
-#     if not hasattr(call_sglang_worker, "worker_id_to_call"):
-#         call_sglang_worker.worker_id_to_call = 0
-#     call_sglang_worker.worker_id_to_call = (call_sglang_worker.worker_id_to_call + 1) % len(worker_addrs)
-#     worker_addr = worker_addrs[call_sglang_worker.worker_id_to_call]
-#     assert len(messages) % 2 == 1, "The number of messages must be odd, meaning the last message is from the user"
-#     max_retry = 5
-#     retry = 0
-#     while True:
-#         try:
-#             state = question.run(
-#                 prompt=prompt,
-#                 max_new_tokens=min(int(generate_kwargs.get("max_new_tokens", 1024)), 1024),
-#                 temperature=float(generate_kwargs.get("temperature", 0.7)),
-#                 top_p = float(generate_kwargs.get("top_p", 1.0)),
-#                 backend=RuntimeEndpoint(worker_addr)
-#             )
-#             response = state["answer"]
-#             generated_text = response
-#             if response:
-#                 worker_initiated = True
-#             break
-#         except urllib.error.URLError as e:
-#             if not worker_initiated:
-#                 time.sleep(5)
-#                 continue
-#             retry += 1
-#             if retry > max_retry:
-#                 return None
-#             print("Connection error, retrying...")
-#             time.sleep(5)
-#         except Exception as e:
-#             print("Unknown exception: ", e, "retrying...")
-#             raise e
-        
-#     generated_text = generated_text.strip("\n ")
-#     return generated_text

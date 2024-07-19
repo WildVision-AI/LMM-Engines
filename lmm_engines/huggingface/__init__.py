@@ -3,6 +3,7 @@ import time
 import torch
 import requests
 import json
+import random
 from pathlib import Path
 from typing import List
 from ..utils import SubprocessMonitor, convert_messages
@@ -130,11 +131,7 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
     else:
         raise ValueError("No image or video provided")
 
-    if not hasattr(call_hf_worker, "worker_id_to_call"):
-        call_hf_worker.worker_id_to_call = 0
-    call_hf_worker.worker_id_to_call = (call_hf_worker.worker_id_to_call + 1) % len(worker_addrs)
-    worker_addr = worker_addrs[call_hf_worker.worker_id_to_call]
-
+    worker_addr = random.choice(worker_addrs)
     timeout = 100
     while True:
         try:

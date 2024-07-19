@@ -1,7 +1,7 @@
 import os
 import time
 import torch
-import requests
+import random
 import json
 import openai
 import vllm
@@ -134,10 +134,7 @@ def call_vllm_worker(messages, model_name, worker_addrs, conv_system_msg=None, *
 
     prompt = chat_tokenizer(chat_messages)
 
-    if not hasattr(call_vllm_worker, "worker_id_to_call"):
-        call_vllm_worker.worker_id_to_call = 0
-    call_vllm_worker.worker_id_to_call = (call_vllm_worker.worker_id_to_call + 1) % len(worker_addrs)
-    worker_addr = worker_addrs[call_vllm_worker.worker_id_to_call]
+    worker_addr = random.choice(worker_addrs)
     
     client = openai.OpenAI(
         base_url=f"{worker_addr}/v1",
@@ -160,34 +157,3 @@ def call_vllm_worker(messages, model_name, worker_addrs, conv_system_msg=None, *
             continue
     
     return completion.choices[0].message.content
-    
-def call_vllm_worker_completion(prompt:str, model_name, worker_addrs, **generate_kwargs) -> str:
-    global worker_initiated
-    
-    if not hasattr(call_vllm_worker_completion, "worker_id_to_call"):
-        call_vllm_worker_completion.worker_id_to_call = 0
-    call_vllm_worker_completion.worker_id_to_call = (call_vllm_worker_completion.worker_id_to_call + 1) % len(worker_addrs)
-    worker_addr = worker_addrs[call_vllm_worker_completion.worker_id_to_call]
-    
-    client = openai.OpenAI(
-        base_url=f"{worker_addr}/v1",
-        api_key="vllm-engine-token",
-    )
-    
-    while True:
-        try:
-            completion = client.completions.create(
-                model=model_name,
-                prompt=prompt,
-                **generate_kwargs,
-            )
-            break
-        except openai.APIConnectionError as e:
-            if not worker_initiated:
-                time.sleep(5)
-                continue
-            print(f"API connection error: {e}")
-            time.sleep(5)
-            continue
-    
-    return completion.choices[0].text
