@@ -1,8 +1,5 @@
 # LMM-Engines
 
-CUDA_VISIBLE_DEVICES=0 python3 -m lmm_engines.huggingface.model_worker --model-path Qwen/Qwen-VL-Chat --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1 &
-
-
 ## Usage
 
 - Start a new worker for local inference
@@ -84,3 +81,39 @@ call_worker_func(test_messages, **generation_kwargs)
 
 - output cache
 set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_engines/generation_cache/{model_name}.jsonl` by default.
+
+
+## Controbute a model
+
+- contribute a new model to huggingface engine: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
+- contribute a new model to vllm engine: not supported yet
+- contribute a new model to sglang engine: not supported yet
+- contribute a new model to openai, gemini, mistral, or other engines, you need to implement `call_model_{engine_name}()` in `lmm_engines/{engine_name}.py`. See the method comments in the file for more details.
+
+## Unit test
+
+- test a model in huggingface engine
+```bash
+python -m lmm_engines.huggingface.model.model_tinyllava
+```
+
+## TODO
+### Huggingface Engine
+- [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py)
+- [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
+- [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
+- [ ] add support for [model_idefics.py](./lmm_engines/huggingface/model/model_idefics)
+- [ ] add support for [model_instructblip.py](./lmm_engines/huggingface/model/model_instructblip)
+- [ ] add support for [model_lita.py](./lmm_engines/huggingface/model/model_lita)
+- [ ] add support for [model_llavanext.py](./lmm_engines/huggingface/model/model_llavanext)
+- [ ] add support for [model_llava.py](./lmm_engines/huggingface/model/model_llava)
+- [ ] add support for [model_qwenvl.py](./lmm_engines/huggingface/model/model_qwenvl)
+- [ ] add support for [model_uform.py](./lmm_engines/huggingface/model/model_uform)
+- [ ] add support for [model_videollama2.py](./lmm_engines/huggingface/model/model_videollama2)
+- [ ] add support for [model_videollava.py](./lmm_engines/huggingface/model/model_videollava)
+
+### Other Engines
+- [ ] add support for openai engine
+- [ ] add support for gemini engine
+- [ ] add support for mistral engine
+- [ ] add support for claude engine

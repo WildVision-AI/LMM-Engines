@@ -5,7 +5,41 @@ from mistralai.exceptions import MistralException
 from typing import List
 
 # no image, multi-turn, do not use openai_generate, but can refer to it
-def call_worker_mistral(messages:List[str], model_name, conv_system_msg=None, **generate_kwargs) -> str:
+def call_worker_mistral(messages:List[str], model_name, **generate_kwargs) -> str:
+    """
+    Call a model worker with a list of messages
+    Args:
+        messages: a list of messages
+            [
+                {"role": "user", "content": [
+                    {
+                        "type": "text",
+                        "text": "Hello, how are you?"
+                    },
+                    {
+                        "type": "image",
+                        "image": "{base64 encoded image}"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": "https://example.com/image.jpg"
+                    },
+                    {
+                        "type": "video",
+                        "video": "{base64 encoded video}"
+                    },
+                    {
+                        "type": "video_url",
+                        "video_url": "https://example.com/video.mp4"
+                    },
+                    ...
+                ]
+            ]
+        model_name: the model name to call
+        worker_addrs: a list of worker addresses
+        generate_kwargs: additional keyword arguments for the generation
+    """
+    raise NotImplementedError("This function is not implemented yet")
     # change messages to mistral format
     client = MistralClient(api_key=os.environ.get("MISTRAL_API_KEY"))
     new_messages = []

@@ -28,8 +28,8 @@ class SubprocessMonitor:
     def __init__(self, command, **kwargs):
         print("Launching subprocess with command:\n", " ".join(command))
         self.proc = subprocess.Popen(command, **kwargs)
-        self.monitor_thread = threading.Thread(target=self._monitor)
-        self.monitor_thread.start()
+        # self.monitor_thread = threading.Thread(target=self._monitor)
+        # self.monitor_thread.start()
     
     def __getattr__(self, name):
         return getattr(self.proc, name)
@@ -81,6 +81,12 @@ def encode_image(image:Image.Image) -> str:
     im_bytes = im_file.getvalue()
     im_64 = base64.b64encode(im_bytes).decode("utf-8")
     return json.dumps(im_64)
+
+def decode_image(encoded_image:str) -> Image.Image:
+    im_64 = json.loads(encoded_image)
+    im_bytes = base64.b64decode(im_64)
+    im_file = BytesIO(im_bytes)
+    return Image.open(im_file)
 
 def convert_messages(messages:List[dict]) -> List[dict]:
     new_messages = []
