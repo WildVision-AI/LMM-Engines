@@ -28,10 +28,10 @@ class QwenVLAPIAdapter(BaseModelAdapter):
         return get_conv_template("qwen-vl-api")
 
 
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass
     
-    def generate_stream(self, params:List[dict]):
+    def generate_stream(self, params:dict):
         pass
     
     

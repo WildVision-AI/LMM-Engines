@@ -82,7 +82,7 @@ class BaseModelAdapter:
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("one_shot")
     
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         # extract params
         prompt = params["prompt"]["text"]
         image = decode_image(params["prompt"]["image"])
@@ -104,7 +104,7 @@ class BaseModelAdapter:
         generated_text = self.processor.decode(outputs[0], skip_special_tokens=True)
         return {"text": generated_text}
     
-    def generate_stream(self, params:List[dict]):
+    def generate_stream(self, params:dict):
         # extract params
         prompt = params["prompt"]["text"]
         image = decode_image(params["prompt"]["image"])

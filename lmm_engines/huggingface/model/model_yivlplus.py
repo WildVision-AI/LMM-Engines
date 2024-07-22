@@ -25,10 +25,10 @@ class YiVLPLUSAdapter(BaseModelAdapter):
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("yi-vl")
 
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass
     
-    def generate_stream(self, params: List[dict]):
+    def generate_stream(self, params:dict):
         pass
     
 if __name__ == "__main__":

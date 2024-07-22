@@ -29,8 +29,16 @@ class TinyLLaVAAdapter(BaseModelAdapter):
         )
         return self.model
     
-    def generate(self, params:List[dict]):
-        
+    def generate(self, params:dict):
+        """
+        params:dict = {
+            "prompt": {
+                "text": str,
+                "image": str, # base64 image
+            },
+            **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
+        }
+        """
         # extract params
         prompt = params["prompt"]["text"]
         image = decode_image(params["prompt"]["image"])
@@ -55,7 +63,16 @@ class TinyLLaVAAdapter(BaseModelAdapter):
         generated_text = generated_text[index+len("ASSISTANT:")+1:].lstrip() if index > -1 else generated_text
         return {"text": generated_text}
         
-    def generate_stream(self, params:List[dict]):
+    def generate_stream(self, params:dict):
+        """
+        params:dict = {
+            "prompt": {
+                "text": str,
+                "image": str, # base64 image
+            },
+            **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
+        }
+        """
         
         # extract params
         prompt = params["prompt"]["text"]

@@ -121,7 +121,7 @@ def get_call_worker_func(
     call_model_worker = partial(call_model_worker, model_name=model_name)
     
     # test local worker connection
-    test_response = call_model_worker(test_messages, temperature=0, max_tokens=1024)
+    test_response = call_model_worker(test_messages, temperature=0, max_tokens=1024, timeout=600)
     if not test_response:
         print("Error: failed to connect to the worker, exiting...")
         for worker in workers:
@@ -131,7 +131,7 @@ def get_call_worker_func(
         print(f"Successfully connected to the workers")
         print("Test messages: ")
         print(json.dumps(shorten_messages(test_messages), indent=4))
-        print("Test response: \n", test_response)
+        print("Test response: \n", test_response,'\n')
         
     # add cache wrapper
     if use_cache:

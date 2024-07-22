@@ -29,10 +29,10 @@ class GeminiAdapter(BaseModelAdapter):
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("bard")
     
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass    
     
-    def generate_image(self, params:List[dict]):
+    def generate_image(self, params:dict):
         pass
     
 if __name__ == "__main__":

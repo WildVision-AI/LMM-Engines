@@ -24,10 +24,10 @@ class IdeficsAdapter(BaseModelAdapter):
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("idefics")
     
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass
     
-    def generate_stream(self, params: List[dict]):
+    def generate_stream(self, params:dict):
         pass
     
 @torch.inference_mode()

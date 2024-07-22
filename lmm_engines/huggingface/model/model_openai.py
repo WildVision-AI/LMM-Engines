@@ -38,10 +38,10 @@ class OpenAIAdapter(BaseModelAdapter):
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("chatgpt")
     
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass
     
-    def generate_stream(self, params: List[dict]):
+    def generate_stream(self, params:dict):
         pass
     
     

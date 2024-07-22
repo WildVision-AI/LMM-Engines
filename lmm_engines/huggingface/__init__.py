@@ -134,6 +134,7 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
 
     @with_timeout(timeout)
     def get_response():
+        global worker_initiated
         while True:
             try:
                 worker_details = requests.post(worker_addr + "/model_details").json()
@@ -144,7 +145,7 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
                     worker_addr + "/worker_generate",
                     json=params,
                     stream=True,
-                    timeout=timeout,
+                    # timeout=timeout,
                 )
                 if response.status_code == 200:
                     worker_initiated = True
@@ -170,4 +171,5 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
             # print("Error in worker response: ", e)
             # generated_text = "**RESPONSE DECODING ERROR**"
         return generated_text
+    
     return get_response()

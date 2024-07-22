@@ -7,7 +7,7 @@
 python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1 --no-register
 ```
 
-- Start a new worker for connecting to a controller
+- Start a new worker for connecting to a controller, then the model will appear in our wildvision arena.
 ```bash
 python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller {controller_address} --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
 python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
@@ -89,13 +89,13 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
 - contribute a new model to huggingface engine: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 - contribute a new model to vllm engine: not supported yet
 - contribute a new model to sglang engine: not supported yet
-- contribute a new model to openai, gemini, mistral, or other engines, you need to implement `call_model_{engine_name}()` in `lmm_engines/{engine_name}.py`. See the method comments in the file for more details.
 
 ## Unit test
 
 - test a model in huggingface engine
 ```bash
-python -m lmm_engines.huggingface.model.model_tinyllava
+python -m lmm_engines.huggingface.model.model_{model_name}
+python -m lmm_engines.huggingface.model.model_tinyllava # example
 ```
 
 ## TODO

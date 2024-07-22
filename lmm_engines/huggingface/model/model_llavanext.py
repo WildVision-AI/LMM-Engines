@@ -32,10 +32,10 @@ class LLaVANeXTAdapter(BaseModelAdapter):
     def load_model(self, model_path: str, device: str, from_pretrained_kwargs: dict = ...):
         pass
     
-    def generate(self, params:List[dict]):
+    def generate(self, params:dict):
         pass
     
-    def generate_stream(self, params:List[dict]):
+    def generate_stream(self, params:dict):
         pass
     
 
