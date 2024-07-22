@@ -130,42 +130,44 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
         params["prompt"]["video"] = video
     else:
         raise ValueError("No image or video provided")
-
     worker_addr = random.choice(worker_addrs)
-    timeout = 100
-    while True:
+
+    @with_timeout(timeout)
+    def get_response():
+        while True:
+            try:
+                worker_details = requests.post(worker_addr + "/model_details").json()
+                if model_name not in worker_details["model_names"] and model_name.split('/')[-1] not in worker_details["model_names"]:
+                    raise ValueError(f"Model {model_name} not found in worker {worker_addr}. Available models on this address: {worker_details['model_names']}")
+                # starlette StreamingResponse
+                response = requests.post(
+                    worker_addr + "/worker_generate",
+                    json=params,
+                    stream=True,
+                    timeout=timeout,
+                )
+                if response.status_code == 200:
+                    worker_initiated = True
+                break
+            except requests.exceptions.ConnectionError as e:
+                if not worker_initiated:
+                    print("Worker not initiated, waiting for 5 seconds...")
+                else:                
+                    print("Connection error, retrying...")
+                time.sleep(5)
+            except requests.exceptions.ReadTimeout as e:
+                print("Read timeout, adding 10 seconds to timeout and retrying...")
+                timeout += 10
+                time.sleep(5)
+            except requests.exceptions.RequestException as e:
+                print("Unknown request exception: ", e, "retrying...")
+                time.sleep(5)
         try:
-            worker_details = requests.post(worker_addr + "/model_details").json()
-            if model_name not in worker_details["model_names"] and model_name.split('/')[-1] not in worker_details["model_names"]:
-                raise ValueError(f"Model {model_name} not found in worker {worker_addr}. Available models on this address: {worker_details['model_names']}")
-            # starlette StreamingResponse
-            response = requests.post(
-                worker_addr + "/worker_generate",
-                json=params,
-                stream=True,
-                timeout=timeout,
-            )
-            if response.status_code == 200:
-                worker_initiated = True
-            break
-        except requests.exceptions.ConnectionError as e:
-            if not worker_initiated:
-                print("Worker not initiated, waiting for 5 seconds...")
-            else:                
-                print("Connection error, retrying...")
-            time.sleep(5)
-        except requests.exceptions.ReadTimeout as e:
-            print("Read timeout, adding 10 seconds to timeout and retrying...")
-            timeout += 10
-            time.sleep(5)
-        except requests.exceptions.RequestException as e:
-            print("Unknown request exception: ", e, "retrying...")
-            time.sleep(5)
-    try:
-        generated_text = json.loads(response.content.decode("utf-8"))['text']
-        generated_text = generated_text.strip("\n ")
-    except Exception as e:
-        generated_text = response.content.decode("utf-8")
-        # print("Error in worker response: ", e)
-        # generated_text = "**RESPONSE DECODING ERROR**"
-    return generated_text
+            generated_text = json.loads(response.content.decode("utf-8"))['text']
+            generated_text = generated_text.strip("\n ")
+        except Exception as e:
+            generated_text = response.content.decode("utf-8")
+            # print("Error in worker response: ", e)
+            # generated_text = "**RESPONSE DECODING ERROR**"
+        return generated_text
+    return get_response()

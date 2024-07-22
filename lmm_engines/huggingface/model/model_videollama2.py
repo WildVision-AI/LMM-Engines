@@ -1,17 +1,37 @@
 import torch
-from icecream import ic
-
-from io import BytesIO
-import base64
 from PIL import Image
-import transformers
+import json
+import base64
+from io import BytesIO
+from .model_adapter import BaseModelAdapter, register_model_adapter
+from ..conversation import get_conv_template, Conversation
+from ...utils import decode_image
+from transformers import AutoTokenizer, AutoModel, AutoProcessor, pipeline, TextIteratorStreamer, LlavaForConditionalGeneration
+from threading import Thread
+from typing import List
 
 from .vlm_utils.videollama2.conversation import conv_templates
 from .vlm_utils.videollama2.constants import DEFAULT_MMODAL_TOKEN, MMODAL_TOKEN_INDEX
 from .vlm_utils.videollama2.mm_utils import get_model_name_from_path, tokenizer_MMODAL_token, process_video, process_image
 from .vlm_utils.videollama2.model.builder import load_pretrained_model
 
+class VideoLLaMA2Adapter(BaseModelAdapter):
+    """The model adapter for DAMO-NLP-SG/VideoLLaMA2-7B"""
 
+    def match(self, model_path: str):
+        return "videollama2" in model_path.lower()
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("videollama2")
+    
+    def load_model(self, model_path: str, device: str, from_pretrained_kwargs: dict = ...):
+        pass
+    
+    def generate(self, params:List[dict]):
+        pass
+    
+    def generate_stream(self, params:List[dict]):
+        pass
 
 @torch.inference_mode()
 def generate_stream_videollama2(model, tokenizer, processor, params, device, context_len, stream_interval, judge_sent_end=False):
@@ -33,7 +53,7 @@ def generate_stream_videollama2(model, tokenizer, processor, params, device, con
         img = Image.open(im_file)
         vision_input.append(img)
 
-    ic(">>> generate_stream_videollama2")
+    print(">>> generate_stream_videollama2")
 
     modal_list = ['video']
     default_mm_token = DEFAULT_MMODAL_TOKEN["VIDEO"]
@@ -66,3 +86,17 @@ def generate_stream_videollama2(model, tokenizer, processor, params, device, con
     outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
 
     yield {"text": outputs[0]}
+    
+if __name__ == "__main__":
+    from .unit_test import test_adapter
+    from PIL import Image
+    model_path = "..."
+    device = "cuda:0"
+    from_pretrained_kwargs = {"torch_dtype": torch.float16}
+    model_adapter = VideoLLaMA2Adapter()
+    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
+    test_adapter(model_adapter)
+    
+"""
+python -m lmm_engines.huggingface.model.model_videollama2
+"""

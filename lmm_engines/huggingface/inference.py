@@ -31,7 +31,7 @@ from transformers.generation.logits_process import (
 
 from .conversation import get_conv_template, SeparatorStyle
 from .model.model_adapter import (
-    load_model,
+    load_adapter,
     get_conversation_template,
     get_generate_stream_function,
 )
@@ -371,7 +371,7 @@ def chat_loop(
     is_lita_stream = "lita" in model_path.lower()
 
     if is_llava_stream or is_llavav15_stream or is_qwenvl_stream:
-        tokenizer, model, image_processor, context_len = load_model(
+        tokenizer, model, image_processor, context_len = load_adapter(
             model_path,
             device=device,
             num_gpus=num_gpus,
@@ -383,7 +383,7 @@ def chat_loop(
             debug=debug,
         )
     elif is_videollava_stream or is_lita_stream:
-        tokenizer, model, processor, context_len = load_model(
+        tokenizer, model, processor, context_len = load_adapter(
             model_path,
             device=device,
             num_gpus=num_gpus,
@@ -395,7 +395,7 @@ def chat_loop(
             debug=debug,
         )   
     else:
-        model, tokenizer = load_model(
+        model, tokenizer = load_adapter(
             model_path,
             device=device,
             num_gpus=num_gpus,

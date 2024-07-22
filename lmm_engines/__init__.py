@@ -36,7 +36,7 @@ def get_call_worker_func(
     num_workers=1,
     num_gpu_per_worker=1,
     dtype="float16",
-    engine="huggingface",
+    engine="default",
     max_retry=5
 ) -> str:
     """
@@ -52,6 +52,7 @@ def get_call_worker_func(
         dtype: data type
         engine: engine name
     """
+    # for openai, gemini, claude, mistral, etc close source models, we implement in the hf model worker as model adapters
     if engine == "openai":
         raise NotImplementedError("OpenAI API is not available yet")
         from .openai_mm import call_worker_openai
@@ -68,8 +69,8 @@ def get_call_worker_func(
         raise NotImplementedError("Mistral API is not available yet")
         from .mistral import call_worker_mistral
         call_model_worker = call_worker_mistral
-    elif engine in ["huggingface"]:
-        if engine == "huggingface":
+    elif engine in ["huggingface", "default"]:
+        if engine in ["default", "huggingface"]:
             from .huggingface import launch_hf_worker, call_hf_worker
             call_worker_func = call_hf_worker
             launch_worker_func = launch_hf_worker

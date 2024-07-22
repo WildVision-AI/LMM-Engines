@@ -1,14 +1,35 @@
-import requests
 import torch
 from PIL import Image
-from io import BytesIO
-
-from transformers.image_utils import load_image
-
 import json
 import base64
+import os
+import uuid
 from io import BytesIO
+from .model_adapter import BaseModelAdapter, register_model_adapter
+from ..conversation import get_conv_template, Conversation
+from ...utils import decode_image
+from transformers import AutoTokenizer, AutoModel, AutoProcessor, pipeline, TextIteratorStreamer, LlavaForConditionalGeneration
+from threading import Thread
+from typing import List
 
+class IdeficsAdapter(BaseModelAdapter):
+    """The model adapter for Idefics"""
+
+    def match(self, model_path: str):
+        return "idefics" in model_path.lower()
+
+    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
+        return None, None
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("idefics")
+    
+    def generate(self, params:List[dict]):
+        pass
+    
+    def generate_stream(self, params: List[dict]):
+        pass
+    
 @torch.inference_mode()
 def generate_stream_idefics(model, tokenizer, processor, params, device, context_len, stream_interval, judge_sent_end=False):
     # TODO: support multiple images
@@ -44,3 +65,18 @@ def generate_stream_idefics(model, tokenizer, processor, params, device, context
     generated_texts = processor.batch_decode(generated_ids[:, input_token_len:], skip_special_tokens=True)
 
     yield {"text": generated_texts[0]}
+    
+    
+    
+if __name__ == "__main__":
+    from .unit_test import test_adapter
+    from PIL import Image
+    model_path = "..."
+    device = "cuda:0"
+    from_pretrained_kwargs = {"torch_dtype": torch.float16}
+    model_adapter = IdeficsAdapter()
+    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
+    test_adapter(model_adapter)
+"""
+python -m lmm_engines.huggingface.model.model_idefics
+"""

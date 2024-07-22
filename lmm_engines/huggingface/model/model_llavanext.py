@@ -1,9 +1,16 @@
 import torch
-from icecream import ic
-
-from io import BytesIO
-import base64
 from PIL import Image
+import json
+import base64
+import os
+import uuid
+from io import BytesIO
+from .model_adapter import BaseModelAdapter, register_model_adapter
+from ..conversation import get_conv_template, Conversation
+from ...utils import decode_image
+from transformers import AutoTokenizer, AutoModel, AutoProcessor, pipeline, TextIteratorStreamer, LlavaForConditionalGeneration
+from threading import Thread
+from typing import List
 
 from .vlm_utils.llavavid.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from .vlm_utils.llavavid.conversation import conv_templates, SeparatorStyle
@@ -11,6 +18,26 @@ from .vlm_utils.llavavid.model.builder import load_pretrained_model
 from .vlm_utils.llavavid.utils import disable_torch_init
 from .vlm_utils.llavavid.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria
 
+
+
+class LLaVANeXTAdapter(BaseModelAdapter):
+    """The model adapter for lmms-lab/LLaVA-NeXT-Video-7B"""
+
+    def match(self, model_path: str):
+        return "llava-next" in model_path.lower()
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("llava-next")
+
+    def load_model(self, model_path: str, device: str, from_pretrained_kwargs: dict = ...):
+        pass
+    
+    def generate(self, params:List[dict]):
+        pass
+    
+    def generate_stream(self, params:List[dict]):
+        pass
+    
 
 
 @torch.inference_mode()
@@ -34,7 +61,7 @@ def generate_stream_llavanext(model, tokenizer, processor, params, device, conte
         img = Image.open(im_file)
         vision_input.append(img)
 
-    ic(">>> generate_stream_llavanext")
+    print(">>> generate_stream_llavanext")
 
     disable_torch_init()
 
@@ -87,3 +114,18 @@ def generate_stream_llavanext(model, tokenizer, processor, params, device, conte
     outputs = outputs.strip()
 
     yield {"text": outputs}
+    
+if __name__ == "__main__":
+    from .unit_test import test_adapter
+    from PIL import Image
+    model_path = "..."
+    device = "cuda:0"
+    from_pretrained_kwargs = {"torch_dtype": torch.float16}
+    model_adapter = LLaVANeXTAdapter
+    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
+    test_adapter(model_adapter)
+    
+"""
+python -m lmm_engines.huggingface.model.model_llavanext
+"""
+    

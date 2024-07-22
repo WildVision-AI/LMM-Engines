@@ -3,9 +3,29 @@ from PIL import Image
 import json
 import base64
 from io import BytesIO
-from icecream import ic
+from .model_adapter import BaseModelAdapter, register_model_adapter
+from ..conversation import get_conv_template, Conversation
+from ...utils import decode_image
+from threading import Thread
+from typing import List
 
-from transformers import AutoModelForCausalLM
+class BunnyAdapter(BaseModelAdapter):
+    """The model adapter for Bunny"""
+
+    def match(self, model_path: str):
+        return "bunny" in model_path.lower()
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("bunny")
+    
+    def load_model(self, model_path: str, device: str, from_pretrained_kwargs: dict = ...):
+        pass
+    
+    def generate(self, params: List[dict]):
+        pass
+    
+    def generate_stream(self, params: List[dict]):
+        pass
 
 @torch.inference_mode()
 def generate_stream_bunny(model, tokenizer, image_processor, params, device, context_len, stream_interval, judge_sent_end=False):
@@ -40,3 +60,17 @@ def generate_stream_bunny(model, tokenizer, image_processor, params, device, con
     answer = tokenizer.decode(output_ids[input_ids.shape[1]:], skip_special_tokens=True).strip()
 
     yield {"text": answer}
+    
+    
+if __name__ == "__main__":
+    from .unit_test import test_adapter
+    from PIL import Image
+    model_path = "..."
+    device = "cuda:0"
+    from_pretrained_kwargs = {"torch_dtype": torch.float16}
+    model_adapter = BunnyAdapter()
+    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
+    test_adapter(model_adapter)
+"""
+python -m lmm_engines.huggingface.model.model_bunny
+"""

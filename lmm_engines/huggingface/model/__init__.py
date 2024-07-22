@@ -1,5 +1,5 @@
 from .model_adapter import (
-    load_model,
+    load_adapter,
     get_conversation_template,
     add_model_args,
 )

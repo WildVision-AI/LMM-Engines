@@ -10,6 +10,7 @@ python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1
 - Start a new worker for connecting to a controller
 ```bash
 python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller {controller_address} --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
+python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
 ```
 
 
@@ -99,7 +100,7 @@ python -m lmm_engines.huggingface.model.model_tinyllava
 
 ## TODO
 ### Huggingface Engine
-- [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py)
+- [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py) (Example implementation by dongfu)
 - [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
 - [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
 - [ ] add support for [model_idefics.py](./lmm_engines/huggingface/model/model_idefics)
@@ -111,9 +112,16 @@ python -m lmm_engines.huggingface.model.model_tinyllava
 - [ ] add support for [model_uform.py](./lmm_engines/huggingface/model/model_uform)
 - [ ] add support for [model_videollama2.py](./lmm_engines/huggingface/model/model_videollama2)
 - [ ] add support for [model_videollava.py](./lmm_engines/huggingface/model/model_videollava)
-
-### Other Engines
-- [ ] add support for openai engine
-- [ ] add support for gemini engine
-- [ ] add support for mistral engine
-- [ ] add support for claude engine
+- [ ] add support for [model_yivlplus.py](./lmm_engines/huggingface/model/model_yivlplus)
+- [ ] add support for [model_yivl.py](./lmm_engines/huggingface/model/model_yivl)
+- [ ] add support for [model_reka.py](./lmm_engines/huggingface/model/model_reka)
+- [ ] add support for [model_llava_v1_5.py](./lmm_engines/huggingface/model/model_llava_v1_5)
+- [ ] add support for [model_llava_v1_6.py](./lmm_engines/huggingface/model/model_llava_v1_6)
+- [ ] add support for [model_minicpm.py](./lmm_engines/huggingface/model/model_minicpm)
+- [ ] add support for [model_minicpmapi.py](./lmm_engines/huggingface/model/model_minicpmapi)
+- [ ] add support for [model_llavaapi.py](./lmm_engines/huggingface/model/model_llavaapi)
+- [ ] add support for [model_cogvlm.py](./lmm_engines/huggingface/model/model_cogvlm)
+- [ ] add support for [model_qwenvlapi.py](./lmm_engines/huggingface/model/model_qwenvlapi)
+- [ ] add support for [model_openai.py](./lmm_engines/huggingface/model/model_openai)
+- [ ] add support for [model_claude.py](./lmm_engines/huggingface/model/model_claude)
+- [ ] add support for [model_gemini.py](./lmm_engines/huggingface/model/model_gemini)

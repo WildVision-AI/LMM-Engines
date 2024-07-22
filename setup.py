@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='lmm_engines',
+    name='lmm-engines',
     version='0.0.1',
     description='',
     author='Dongfu Jiang',
@@ -32,6 +32,7 @@ setup(
         "decord",
         "matplotlib",
         "transformers_stream_generator",
-        "einops"
+        "einops",
+        "timm"
     ],
 )
