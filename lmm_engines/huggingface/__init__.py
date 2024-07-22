@@ -5,7 +5,7 @@ import requests
 import json
 from pathlib import Path
 from typing import List
-from ..utils import SubprocessMonitor, convert_messages
+from ..utils import SubprocessMonitor, convert_messages, with_timeout
 
 worker_initiated = False
 
@@ -56,7 +56,7 @@ def launch_hf_worker(
     return f"http://127.0.0.1:{port}", proc
 
     
-def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], **generate_kwargs) -> str:
+def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], timeout:int=60, **generate_kwargs) -> str:
     """
     Call a model worker with a list of messages
     Args:
@@ -128,43 +128,45 @@ def call_hf_worker(messages:List[dict], model_name:str, worker_addrs:List[str], 
         call_hf_worker.worker_id_to_call = 0
     call_hf_worker.worker_id_to_call = (call_hf_worker.worker_id_to_call + 1) % len(worker_addrs)
     worker_addr = worker_addrs[call_hf_worker.worker_id_to_call]
-
-    timeout = 100
-    while True:
+    
+    @with_timeout(timeout)
+    def get_response():
+        while True:
+            try:
+                worker_details = requests.post(worker_addr + "/model_details").json()
+                print(worker_details)
+                if model_name not in worker_details["model_names"] and model_name.split('/')[-1] not in worker_details["model_names"]:
+                    raise ValueError(f"Model {model_name} not found in worker {worker_addr}. Available models on this address: {worker_details['model_names']}")
+                # starlette StreamingResponse
+                response = requests.post(
+                    worker_addr + "/worker_generate",
+                    json=params,
+                    stream=True,
+                )
+                if response.status_code == 200:
+                    worker_initiated = True
+                break
+            except requests.exceptions.ConnectionError as e:
+                if not worker_initiated:
+                    print("Worker not initiated, waiting for 5 seconds...")
+                else:                
+                    print("Connection error, retrying...")
+                time.sleep(5)
+            except requests.exceptions.ReadTimeout as e:
+                print("Read timeout, adding 10 seconds to timeout and retrying...")
+                timeout += 10
+                time.sleep(5)
+            except requests.exceptions.RequestException as e:
+                print("Unknown request exception: ", e, "retrying...")
+                time.sleep(5)
+        print(response.content.decode("utf-8"))
         try:
-            worker_details = requests.post(worker_addr + "/model_details").json()
-            print(worker_details)
-            if model_name not in worker_details["model_names"] and model_name.split('/')[-1] not in worker_details["model_names"]:
-                raise ValueError(f"Model {model_name} not found in worker {worker_addr}. Available models on this address: {worker_details['model_names']}")
-            # starlette StreamingResponse
-            response = requests.post(
-                worker_addr + "/worker_generate",
-                json=params,
-                stream=True,
-                timeout=timeout,
-            )
-            if response.status_code == 200:
-                worker_initiated = True
-            break
-        except requests.exceptions.ConnectionError as e:
-            if not worker_initiated:
-                print("Worker not initiated, waiting for 5 seconds...")
-            else:                
-                print("Connection error, retrying...")
-            time.sleep(5)
-        except requests.exceptions.ReadTimeout as e:
-            print("Read timeout, adding 10 seconds to timeout and retrying...")
-            timeout += 10
-            time.sleep(5)
-        except requests.exceptions.RequestException as e:
-            print("Unknown request exception: ", e, "retrying...")
-            time.sleep(5)
-    print(response.content.decode("utf-8"))
-    try:
-        generated_text = json.loads(response.content.decode("utf-8"))['text']
-        generated_text = generated_text.strip("\n ")
-    except Exception as e:
-        raise e
-        print("Error in worker response: ", e)
-        generated_text = "**RESPONSE DECODING ERROR**"
-    return generated_text
+            generated_text = json.loads(response.content.decode("utf-8"))['text']
+            generated_text = generated_text.strip("\n ")
+        except Exception as e:
+            raise e
+            print("Error in worker response: ", e)
+            generated_text = "**RESPONSE DECODING ERROR**"
+        return generated_text
+    
+    return get_response()

@@ -8,6 +8,8 @@ import json
 import base64
 import hashlib
 import requests
+import traceback
+import threading
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
@@ -183,16 +185,46 @@ def generation_cache_wrapper(call_model_worker, model_name, cache_dir=None):
             return generated_text
     return wrapper
 
+class MaxRetriesExceededError(Exception):
+    pass
+
 def retry_on_failure(call_model_worker, num_retries=5):
     def wrapper(*args, **kwargs):
         for i in range(num_retries):
             try:
                 return call_model_worker(*args, **kwargs)
             except Exception as e:
-                if i == num_retries - 1:
-                    raise e
-                else:
-                    print("Error in call_model_worker, retrying", e)
-                    time.sleep(1)
-        raise Exception("Failed after multiple retries")
+                print("Error in call_model_worker, retrying... (Error: {})".format(e))
+                time.sleep(1)
+                if i == num_retries - 1 and not isinstance(e, TimeoutError):
+                    # format dump of the last error and
+                    print(traceback.format_exc())
+        raise MaxRetriesExceededError("Max retries exceeded for call_model_worker")
     return wrapper
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Function call timed out")
+
+def with_timeout(timeout):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            result = [TimeoutError(f"Function call timed out (timeout={timeout})")]
+            stop_event = threading.Event()
+
+            def target():
+                try:
+                    result[0] = func(*args, **kwargs)
+                except Exception as e:
+                    result[0] = e
+
+            thread = threading.Thread(target=target)
+            thread.start()
+            thread.join(timeout)
+            if thread.is_alive():
+                stop_event.set()
+                raise TimeoutError(f"Function call timed out (timeout={timeout})")
+            if isinstance(result[0], Exception):
+                raise result[0]
+            return result[0]
+        return wrapper
+    return decorator
