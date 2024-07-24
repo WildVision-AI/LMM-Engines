@@ -9,9 +9,12 @@ python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1
 
 - Start a new worker for connecting to a controller, then the model will appear in our wildvision arena.
 ```bash
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller {controller_address} --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
+bore local $model_worker_port --to 34.19.37.54
+python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://34.19.37.54:8888 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
 ```
+Refer to [`start_worker.sh`](./start_worker.sh)
+
+
 
 
 - call the worker
