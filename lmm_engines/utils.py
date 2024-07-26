@@ -3,13 +3,13 @@ import threading
 import time
 import os
 import signal
-import os
 import json
 import base64
 import hashlib
 import requests
 import traceback
 import threading
+import datetime
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
@@ -87,6 +87,28 @@ def decode_image(encoded_image:str) -> Image.Image:
     im_bytes = base64.b64decode(im_64)
     im_file = BytesIO(im_bytes)
     return Image.open(im_file)
+
+def decode_and_save_video(encoded_video:str, tmp_dir=None) -> str:
+    """
+    decode and save video from base64 encoded string
+    Returns:
+        str: the path to the saved video file
+    """
+    if tmp_dir is None:
+        # Check for environment variables that might define the temporary directory
+        tmp_dir = Path(os.path.abspath(__file__)).parent / "tmp" / "video"
+    if not tmp_dir.exists():
+        tmp_dir.mkdir(parents=True)
+        
+    cur_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    temp_file = tmp_dir / f"{str(cur_time)}.mp4"
+    
+    vision_input = BytesIO(base64.b64decode(json.loads(encoded_video)))
+
+    with open(temp_file, "wb") as output_file:
+        output_file.write(vision_input.getvalue())
+        
+    return str(temp_file)
 
 def convert_messages(messages:List[dict]) -> List[dict]:
     new_messages = []

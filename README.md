@@ -2,19 +2,24 @@
 
 ## Usage
 
-- Start a new worker for local inference
+### Local testing
 ```bash
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1 --no-register
+python -m lmm_engines.huggingface.model.dummy_image_model
+python -m lmm_engines.huggingface.model.dummy_video_model
+# python -m lmm_engines.huggingface.model.model_tinyllava # example
 ```
 
-- Start a new worker for connecting to a controller, then the model will appear in our wildvision arena.
+### Connect to Wildvision Arena and be one arena competitor
 ```bash
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller {controller_address} --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
+python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://34.19.37.54:8888  --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
+python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
 ```
 
-
-- call the worker
+### Start a new worker for local inference
+```bash
+CUDA_VISIBLE_DEVICES=0 python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1 --no-register
+```
+Then call the worker
 ```python
 from lmm_engines import get_call_worker_func
 call_worker_func = get_call_worker_func(
@@ -44,12 +49,12 @@ generation_kwargs = {
 call_worker_func(test_messages, **generation_kwargs)
 ```
 
-- all in one for custom inference in your python script
+Or you can start a new worker automatically, fusing the above two steps all in one. model worker will close automatically after the python script ends.
 ```python
 from lmm_engines import get_call_worker_func
 # start a new worker
 call_worker_func = get_call_worker_func(
-    model_name="bczhou/tiny-llava-v1-hf",
+    model_name="dummy_image_model", # 
     engine="huggingface",
     num_workers=1,
     num_gpu_per_worker=1,
@@ -77,7 +82,7 @@ generation_kwargs = {
     "max_new_tokens": 200,
 }
 # call the worker
-call_worker_func(test_messages, **generation_kwargs)
+print(call_worker_func(test_messages, **generation_kwargs))
 ```
 
 - output cache
@@ -86,20 +91,22 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
 
 ## Controbute a model
 
-- contribute a new model to huggingface engine: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
-- contribute a new model to vllm engine: not supported yet
-- contribute a new model to sglang engine: not supported yet
+- If you are contributing a new image model, copy the [dummy_image_model.py](./lmm_engines/huggingface/model/dummy_image_model.py) and modify it.
+- If you are contributing a new video model, copy the [dummy_video_model.py](./lmm_engines/huggingface/model/dummy_video_model.py) and modify it.
+- Four functions to implement:
+    - `load_model(self, model_path: str, device: str, from_pretrained_kwargs: Dict[str, Any]) -> None`
+    - `generate(self, messages: List[Dict[str, Any]], **kwargs) -> List[Dict[str, Any]]`
+    - `generate_image(self, image: Image.Image, **kwargs) -> Image.Image`
+    - `generate_video(self, video: List[Image.Image], **kwargs) -> List[Image.Image]`
+- test the model adapter: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 
-## Unit test
+(Note: we don't care the internal details of these 4 functions, as long as it can receive params and return the expected results as specified in the function signature.)
 
-- test a model in huggingface engine
-```bash
-python -m lmm_engines.huggingface.model.model_{model_name}
-python -m lmm_engines.huggingface.model.model_tinyllava # example
-```
+More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
+
 
 ## TODO
-### Huggingface Engine
+### Transfering models from old arena codes into lmm-engines
 - [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py) (Example implementation by dongfu)
 - [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
 - [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
