@@ -14,6 +14,9 @@ python -m lmm_engines.huggingface.model.dummy_video_model
 python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://34.19.37.54:8888  --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
 python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
 ```
+Refer to [`start_worker.sh`](./start_worker.sh)
+
+
 
 ### Start a new worker for local inference
 ```bash
