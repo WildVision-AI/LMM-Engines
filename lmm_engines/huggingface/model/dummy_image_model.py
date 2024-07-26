@@ -13,6 +13,7 @@ from typing import List
 
 class DummyImageAdapter(BaseModelAdapter):
     """The model adapter for DummyImageModel"""
+    
 
     def match(self, model_path: str):
         return "dummy_image_model" in model_path.lower()
@@ -83,9 +84,14 @@ class DummyImageAdapter(BaseModelAdapter):
             time.sleep(0.1)
             yield {"text": generated_text}
     
-    def get_status(self):
-        status = super().get_status()
-        status["type"] = "image"
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "Anonymous",
+            "organization": "Anonymous",
+            "model_size": None,
+            "model_link": None,
+        }
     
 if __name__ == "__main__":
     from .unit_test import test_adapter

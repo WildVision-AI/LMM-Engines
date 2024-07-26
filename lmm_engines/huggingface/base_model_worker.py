@@ -52,6 +52,7 @@ class BaseModelWorker:
         self.semaphore = None
 
         self.heart_beat_thread = None
+        self.worker_info = None
 
         if logger is None:
             logger = build_logger("model_worker", f"model_worker_{self.worker_id}.log")
@@ -144,6 +145,7 @@ class BaseModelWorker:
             "model_names": self.model_names,
             "speed": 1,
             "queue_length": self.get_queue_length(),
+            # "info": self.worker_info,
         }
 
     def count_token(self, params):

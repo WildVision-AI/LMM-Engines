@@ -83,6 +83,7 @@ class ModelWorker(BaseModelWorker):
         self.stream_interval = stream_interval
         self.embed_in_truncate = embed_in_truncate
         self.seed = seed
+        self.worker_info = self.adapter.get_info()
 
         if not no_register:
             self.init_heart_beat()

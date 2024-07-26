@@ -2,8 +2,8 @@ model_name=$1
 model_worker_port=$2
 
 # hard coded for now
-controller_addr=http://34.19.37.54:8888 # hard coded for now
-# controller_addr=http://127.0.0.1:21002 # hard coded for now
+controller_addr=http://34.19.37.54:8888 # hard coded for now, wildvision controller address
+# controller_addr=http://127.0.0.1:21002 # for local testing
 bore_server_ip=34.19.37.54 # hard coded for now
 BORE_LOG_FOLDER="./bore_logs"
 mkdir -p $BORE_LOG_FOLDER

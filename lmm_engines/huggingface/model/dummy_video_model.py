@@ -84,9 +84,14 @@ class DummyVideoAdapter(BaseModelAdapter):
             time.sleep(0.1)
             yield {"text": generated_text}
             
-    def get_status(self):
-        status = super().get_status()
-        status["type"] = "video"
+    def get_info(self):
+        return {
+            "type": "video",
+            "author": "Anonymous",
+            "organization": "Anonymous",
+            "model_size": None,
+            "model_link": None,
+        }
     
 if __name__ == "__main__":
     from .unit_test import test_adapter

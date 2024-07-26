@@ -52,10 +52,10 @@ class BaseModelAdapter:
         return True
 
     def load_model(self, model_path: str, device:str, from_pretrained_kwargs: dict={}):
-        # self.model = ...
+        print("Warning: You are using the load_model method of the BaseModelAdapter, which is not implemented. Please implement the load_model method in your model adapter.")
+        self.model = None
         # self.processor = ...
-        # return self.model
-        pass
+        return self.model
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("one_shot")
@@ -129,6 +129,15 @@ class BaseModelAdapter:
         for text in streamer:
             generated_text += text
             yield {"text": generated_text}
+            
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "Anonymous",
+            "organization": "Anonymous",
+            "model_size": None,
+            "model_link": None,
+        }
 
 
 # A global registry for all model adapters
