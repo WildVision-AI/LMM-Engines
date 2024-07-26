@@ -28,7 +28,7 @@ class DummyImageAdapter(BaseModelAdapter):
         Returns:
             model: A nn.Module model or huggingface PreTrainedModel model
         """
-        pass 
+        self.model = None
         # model_id = model_path
         # if "torch_dtype" not in from_pretrained_kwargs:
         #     from_pretrained_kwargs["torch_dtype"] = torch.float16
@@ -39,7 +39,8 @@ class DummyImageAdapter(BaseModelAdapter):
         # self.model = LlavaForConditionalGeneration.from_pretrained(
         #     model_path, **from_pretrained_kwargs
         # )
-        # return self.model
+        print(self.model)
+        return self.model
     
     def generate(self, params:dict):
         """
@@ -82,6 +83,10 @@ class DummyImageAdapter(BaseModelAdapter):
             time.sleep(0.1)
             yield {"text": generated_text}
     
+    def get_status(self):
+        status = super().get_status()
+        status["type"] = "image"
+    
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
@@ -96,5 +101,5 @@ if __name__ == "__main__":
 # local testing
 python -m lmm_engines.huggingface.model.dummy_image_model
 # connect to wildvision arena
-python -m lmm_engines.huggingface.model_worker --model-path bczhou/tiny-llava-v1-hf --controller http://34.19.37.54:8888  --port 31004 --worker http://127.0.0.1:31004 --host=127.0.0.1
+python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://34.19.37.54:8888  --port 31004 --worker http://{your_server}:31004 --host=127.0.0.1
 """

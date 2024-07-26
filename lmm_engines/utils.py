@@ -96,7 +96,7 @@ def decode_and_save_video(encoded_video:str, tmp_dir=None) -> str:
     """
     if tmp_dir is None:
         # Check for environment variables that might define the temporary directory
-        tmp_dir = Path(os.path.abspath(__file__)).parent / "tmp" / "video"
+        tmp_dir = Path(os.path.abspath(__file__)).parent / "tmp_log_videos"
     if not tmp_dir.exists():
         tmp_dir.mkdir(parents=True)
         

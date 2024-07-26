@@ -220,6 +220,7 @@ async def api_get_embeddings(request: Request):
 
 @app.post("/worker_get_status")
 async def api_get_status(request: Request):
+    print(worker.get_status())
     return worker.get_status()
 
 

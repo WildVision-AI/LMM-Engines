@@ -10,12 +10,16 @@ python -m lmm_engines.huggingface.model.dummy_video_model
 ```
 
 ### Connect to Wildvision Arena and be one arena competitor
-```bash
-python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://34.19.37.54:8888  --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
-python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://127.0.0.1:21002 --port 31004 --worker http://127.0.0.1:31004 --host=0.0.0.0
-```
-Refer to [`start_worker.sh`](./start_worker.sh)
 
+First run `bash install_bore.sh` once to install bore.
+```bash
+bash start_worker.sh ${model_name} ${model_port}
+# Example
+bash start_worker.sh dummy_image_model 41411
+```
+Then your worker shall be registered to the arena. You can check it by visiting 🤗 [WildVision/vision-arena](https://huggingface.co/spaces/WildVision/vision-arena)
+
+See `## Controbute a model` section for how to contribute your own model.
 
 
 ### Start a new worker for local inference
@@ -94,19 +98,18 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
 
 ## Controbute a model
 
-- If you are contributing a new image model, copy the [dummy_image_model.py](./lmm_engines/huggingface/model/dummy_image_model.py) and modify it.
-- If you are contributing a new video model, copy the [dummy_video_model.py](./lmm_engines/huggingface/model/dummy_video_model.py) and modify it.
+- If you are contributing a new image model, copy the [lmm_engines/huggingface/model/dummy_image_model.py](./lmm_engines/huggingface/model/dummy_image_model.py) and modify it.
+- If you are contributing a new video model, copy the [lmm_engines/huggingface/model/dummy_video_model.py](./lmm_engines/huggingface/model/dummy_video_model.py) and modify it.
 - Four functions to implement:
     - `load_model(self, model_path: str, device: str, from_pretrained_kwargs: Dict[str, Any]) -> None`
     - `generate(self, messages: List[Dict[str, Any]], **kwargs) -> List[Dict[str, Any]]`
     - `generate_image(self, image: Image.Image, **kwargs) -> Image.Image`
     - `generate_video(self, video: List[Image.Image], **kwargs) -> List[Image.Image]`
 - test the model adapter: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
-
+- add registration at the bottom of [`lmm_engines/huggingface/model/model_adapter.py`](./lmm_engines/huggingface/model/model_adapter.py)
 (Note: we don't care the internal details of these 4 functions, as long as it can receive params and return the expected results as specified in the function signature.)
 
 More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
-
 
 ## TODO
 ### Transfering models from old arena codes into lmm-engines

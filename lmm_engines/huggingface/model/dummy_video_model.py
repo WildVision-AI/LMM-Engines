@@ -30,7 +30,7 @@ class DummyVideoAdapter(BaseModelAdapter):
         Returns:
             model: A nn.Module model or huggingface PreTrainedModel model
         """
-        pass 
+        self.model = None
         # model_id = model_path
         # if "torch_dtype" not in from_pretrained_kwargs:
         #     from_pretrained_kwargs["torch_dtype"] = torch.float16
@@ -41,7 +41,7 @@ class DummyVideoAdapter(BaseModelAdapter):
         # self.model = LlavaForConditionalGeneration.from_pretrained(
         #     model_path, **from_pretrained_kwargs
         # )
-        # return self.model
+        return self.model
     
     def generate(self, params:dict):
         """
@@ -83,6 +83,10 @@ class DummyVideoAdapter(BaseModelAdapter):
             generated_text += word + " "
             time.sleep(0.1)
             yield {"text": generated_text}
+            
+    def get_status(self):
+        status = super().get_status()
+        status["type"] = "video"
     
 if __name__ == "__main__":
     from .unit_test import test_adapter
