@@ -145,7 +145,7 @@ class BaseModelWorker:
             "model_names": self.model_names,
             "speed": 1,
             "queue_length": self.get_queue_length(),
-            # "info": self.worker_info,
+            "info": self.worker_info,
         }
 
     def count_token(self, params):
