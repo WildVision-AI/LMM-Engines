@@ -107,7 +107,10 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
     - `generate_video(self, video: List[Image.Image], **kwargs) -> List[Image.Image]`
 - test the model adapter: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 - add registration at the bottom of [`lmm_engines/huggingface/model/model_adapter.py`](./lmm_engines/huggingface/model/model_adapter.py)
+- Connect to Wildvision Arena and be one arena competitor: `bash start_worker.sh ${model_name} ${model_port}`
+
 (Note: we don't care the internal details of these 4 functions, as long as it can receive params and return the expected results as specified in the function signature.)
+
 
 More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 
