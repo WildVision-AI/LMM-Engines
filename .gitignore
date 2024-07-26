@@ -161,5 +161,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 /tmp_log_images
+/tmp_log_videos
 /generation_cache
 /test*
+/bore_logs
