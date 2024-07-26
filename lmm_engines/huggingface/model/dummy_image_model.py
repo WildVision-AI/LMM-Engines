@@ -101,5 +101,5 @@ if __name__ == "__main__":
 # local testing
 python -m lmm_engines.huggingface.model.dummy_image_model
 # connect to wildvision arena
-python -m lmm_engines.huggingface.model_worker --model-path dummy_image_model --controller http://34.19.37.54:8888  --port 31004 --worker http://{your_server}:31004 --host=127.0.0.1
+bash start_worker_on_arena.sh dummy_image_model 41411
 """

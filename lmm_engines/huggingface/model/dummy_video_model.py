@@ -99,5 +99,8 @@ if __name__ == "__main__":
     test_adapter(model_adapter)
     
 """
+# local testing
 python -m lmm_engines.huggingface.model.dummy_video_model
+# connect to wildvision arena
+bash start_worker_on_arena.sh dummy_video_model 41411
 """
