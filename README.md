@@ -13,9 +13,9 @@ python -m lmm_engines.huggingface.model.dummy_video_model
 
 First run `bash install_bore.sh` once to install bore.
 ```bash
-bash start_worker.sh ${model_name} ${model_port}
+bash start_worker_on_arena.sh ${model_name} ${model_port}
 # Example
-bash start_worker.sh dummy_image_model 41411
+bash start_worker_on_arena.sh dummy_image_model 41411
 ```
 Then your worker shall be registered to the arena. You can check it by visiting 🤗 [WildVision/vision-arena](https://huggingface.co/spaces/WildVision/vision-arena)
 
@@ -107,7 +107,7 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
     - `generate_video(self, video: List[Image.Image], **kwargs) -> List[Image.Image]`
 - test the model adapter: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 - add registration at the bottom of [`lmm_engines/huggingface/model/model_adapter.py`](./lmm_engines/huggingface/model/model_adapter.py)
-- Connect to Wildvision Arena and be one arena competitor: `bash start_worker.sh ${model_name} ${model_port}`
+- Connect to Wildvision Arena and be one arena competitor: `bash start_worker_on_arena.sh ${model_name} ${model_port}`
 
 (Note: we don't care the internal details of these 4 functions, as long as it can receive params and return the expected results as specified in the function signature.)
 
