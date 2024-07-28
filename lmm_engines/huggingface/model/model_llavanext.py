@@ -21,10 +21,10 @@ from .vlm_utils.llavavid.mm_utils import tokenizer_image_token, get_model_name_f
 
 
 class LLaVANeXTAdapter(BaseModelAdapter):
-    """The model adapter for lmms-lab/LLaVA-NeXT-Video-7B"""
+    """The model adapter for lmms-lab/LLaVA-NeXT-7B"""
 
     def match(self, model_path: str):
-        return "llava-next" in model_path.lower()
+        return "llava-next" in model_path.lower() and "video" not in model_path.lower()
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("llava-next")

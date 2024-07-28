@@ -7,11 +7,13 @@ controller_addr=http://34.19.37.54:8888 # hard coded for now, wildvision control
 bore_server_ip=34.19.37.54 # hard coded for now
 BORE_LOG_FOLDER="./bore_logs"
 mkdir -p $BORE_LOG_FOLDER
-bore_log_file="${BORE_LOG_FOLDER}/bore_output_${model_name}_${model_worker_port}.log"
+# replace / with _ in model name
+_model_name=$(echo $model_name | sed 's/\//_/g')
+bore_log_file="${BORE_LOG_FOLDER}/bore_output_${_model_name}_${model_worker_port}.log"
 
 if command -v bore &> /dev/null
 then
-    echo "bore is installed"
+    echo "bore is installed, try assigning a public address for the worker"
 else
     echo "bore is not installed, please install it by running the following commands:"
     echo "Step 1: if you did not install rust and cargo, please first run the following command (ignore if you have already installed):"
@@ -30,7 +32,6 @@ else
 fi
 
 # above code is to get the public address of the worker, hard coded for now
-
 
 # add CUDA_VISIBLE_DEVICES=0 if you want to specify the GPU
 python -m lmm_engines.huggingface.model_worker --model-path $model_name --controller ${controller_addr} --port $model_worker_port --worker http://${bore_public_addr} --host=0.0.0.0
