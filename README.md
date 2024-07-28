@@ -1,5 +1,11 @@
 # LMM-Engines
 
+## Installation
+```bash
+pip install -e .
+bash install_bore.sh
+```
+
 ## Usage
 
 ### Local testing
