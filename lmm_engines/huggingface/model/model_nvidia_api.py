@@ -5,6 +5,7 @@ import base64
 import requests
 import time
 import io
+import os
 from io import BytesIO
 from .model_adapter import BaseModelAdapter, register_model_adapter
 from ..conversation import get_conv_template, Conversation
@@ -42,17 +43,19 @@ def convert_response_to_text(response, stream):
     return full_content
 
 
-class LLaVAv1634bNvidiaAPIAdapter(BaseModelAdapter):
+class NvidiaAPIAdapter(BaseModelAdapter):
     """The model adapter for Nvidia API"""
 
     def __init__(self) -> None:
         super().__init__()
-        self.api_key = "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"
+        self.api_key = os.getenv("NVIDIA_API_KEY")
+        if not self.api_key:
+            raise ValueError("NVIDIA_API_KEY environment variable is not set")
         self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/community/llava16-34b"
     
 
     def match(self, model_path: str):
-        return "api" in model_path.lower()
+        return "nvidia_api" in model_path.lower()
 
     def load_model(self, model_path: str, device:str="cuda", from_pretrained_kwargs: dict={}):
         """
@@ -105,9 +108,9 @@ class LLaVAv1634bNvidiaAPIAdapter(BaseModelAdapter):
             "content": f'{prompt} <img src="data:image/jpeg;base64,{image_b64}" />'
             }
         ],
-        "max_tokens": 512,
-        "temperature": 1.00,
-        "top_p": 0.70,
+        "max_tokens": params.get("max_new_tokens", params.get("max_tokens", 512)),
+        "temperature": params.get("temperature", 0.0),
+        "top_p": params.get("top_p", 1.0),
         "stream": stream
         }
 
@@ -147,9 +150,9 @@ class LLaVAv1634bNvidiaAPIAdapter(BaseModelAdapter):
             "content": f'{prompt} <img src="data:image/jpeg;base64,{image_b64}" />'
             }
         ],
-        "max_tokens": 512,
-        "temperature": 1.00,
-        "top_p": 0.70,
+        "max_tokens": params.get("max_new_tokens", params.get("max_tokens", 512)),
+        "temperature": params.get("temperature", 0.0),
+        "top_p": params.get("top_p", 1.0),
         "stream": stream
         }
 
@@ -188,18 +191,68 @@ class LLaVAv1634bNvidiaAPIAdapter(BaseModelAdapter):
             "model_size": None,
             "model_link": None,
         }
+        
+        
+class LLaVAv1634bNvidiaAPIAdapter(NvidiaAPIAdapter):
+    """The model adapter for LLaVA v1.6 34b Nvidia API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/community/llava16-34b"
+    
+    def match(self, model_path: str):
+        return "llava_v1_6_34b_nvidia_api" in model_path.lower()
+    
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "...",
+            "organization": "...",
+            "model_size": "34b",
+            "model_link": "https://build.nvidia.com/explore/vision#llava16-34b"
+        }
+    
+class LLaVAv16Mistral7bNvidiaAPIAdapter(NvidiaAPIAdapter):
+    """The model adapter for LLaVA v1.6 Mistral 7b Nvidia API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/community/llava16-mistral-7b"
+    
+    def match(self, model_path: str):
+        return "llava_v1_6_mistral_7b_nvidia_api" in model_path.lower()
+    
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "...",
+            "organization": "...",
+            "model_size": "7b",
+            "model_link": "https://build.nvidia.com/explore/vision#llava16-mistral-7b"
+        }
+        
     
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    model_path = "llava_v1_6_34b_nvidia_api"
     device = "cuda:0"
     from_pretrained_kwargs = {"torch_dtype": torch.float16}
+    
+    model_path = "llava_v1_6_34b_nvidia_api"
     model_adapter = LLaVAv1634bNvidiaAPIAdapter()
     model_adapter.load_model(model_path, device, from_pretrained_kwargs)
     test_adapter(model_adapter)
     
+    model_path = "llava_v1_6_mistral_7b_nvidia_api"
+    model_adapter = LLaVAv16Mistral7bNvidiaAPIAdapter()
+    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
+    test_adapter(model_adapter)
+    
 """
+export NVIDIA_API_KEY={your_nvidia_api_key} # see https://build.nvidia.com/explore/vision
 # local testing
-python -m lmm_engines.huggingface.model.model_llava_v1_6_34b_nvidia_api
+python -m lmm_engines.huggingface.model.model_nvidia_api
+# connect to wildvision arena
+bash start_worker_on_arena.sh llava_v1_6_34b_nvidia_api 41410
+bash start_worker_on_arena.sh llava_v1_6_mistral_7b_nvidia_api 41411
 """
