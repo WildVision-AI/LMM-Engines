@@ -11,6 +11,7 @@ from .model_adapter import BaseModelAdapter, register_model_adapter
 from ..conversation import get_conv_template, Conversation
 from ...utils import decode_and_save_video
 from transformers import LlavaNextVideoProcessor, LlavaNextVideoForConditionalGeneration, TextIteratorStreamer
+from transformers.utils import is_flash_attn_2_available
 from threading import Thread
 from typing import List
 
@@ -55,6 +56,9 @@ class LLaVANextVideoAdapter(BaseModelAdapter):
             from_pretrained_kwargs["torch_dtype"] = torch.float16
         from_pretrained_kwargs["device_map"] = device
         from_pretrained_kwargs["low_cpu_mem_usage"] = True
+        if is_flash_attn_2_available():
+            from_pretrained_kwargs["use_flash_attention_2"] = True
+        print(from_pretrained_kwargs)
         self.model = LlavaNextVideoForConditionalGeneration.from_pretrained(
             model_path, **from_pretrained_kwargs
         )

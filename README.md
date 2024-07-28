@@ -1,8 +1,13 @@
 # LMM-Engines
 
 ## Installation
+- Install the requirements
 ```bash
 pip install -e .
+pip install flash-attn --no-build-isolation # optional, for faster inference
+```
+- for connecting to Wildvision Arena, you need to install bore
+```bash
 bash install_bore.sh
 ```
 
