@@ -49,8 +49,6 @@ class NvidiaAPIAdapter(BaseModelAdapter):
     def __init__(self) -> None:
         super().__init__()
         self.api_key = os.getenv("NVIDIA_API_KEY")
-        if not self.api_key:
-            raise ValueError("NVIDIA_API_KEY environment variable is not set")
         self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/community/llava16-34b"
     
 
@@ -69,7 +67,8 @@ class NvidiaAPIAdapter(BaseModelAdapter):
             model: A nn.Module model or huggingface PreTrainedModel model
         """
         self.model = model_path
-
+        if not self.api_key:
+            raise ValueError("NVIDIA_API_KEY environment variable is not set")
         print(self.model)
         return self.model
     
