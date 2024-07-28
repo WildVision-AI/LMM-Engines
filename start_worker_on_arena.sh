@@ -8,6 +8,18 @@ bore_server_ip=34.19.37.54 # hard coded for now
 BORE_LOG_FOLDER="./bore_logs"
 mkdir -p $BORE_LOG_FOLDER
 bore_log_file="${BORE_LOG_FOLDER}/bore_output_${model_name}_${model_worker_port}.log"
+
+if command -v bore &> /dev/null
+then
+    echo "bore is installed"
+else
+    echo "bore is not installed, please install it by running the following commands:"
+    echo "Step 1: if you did not install rust and cargo, please first run the following command (ignore if you have already installed):"
+    echo "curl https://sh.rustup.rs -sSf | sh"
+    echo "Step 2: Install bore by running the following command:"
+    echo "cargo install --git https://github.com/jdf-prog/bore"
+    exit 1
+fi
 bore local $model_worker_port --to $bore_server_ip > $bore_log_file 2>&1 &
 trap "kill $!" EXIT
 sleep 5
