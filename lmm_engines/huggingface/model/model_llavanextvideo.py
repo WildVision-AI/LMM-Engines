@@ -54,7 +54,6 @@ class LLaVANextVideoAdapter(BaseModelAdapter):
         """
         if "torch_dtype" not in from_pretrained_kwargs:
             from_pretrained_kwargs["torch_dtype"] = torch.float16
-        from_pretrained_kwargs["device_map"] = device
         from_pretrained_kwargs["low_cpu_mem_usage"] = True
         if is_flash_attn_2_available():
             from_pretrained_kwargs["use_flash_attention_2"] = True
@@ -181,5 +180,6 @@ if __name__ == "__main__":
 # local testing
 python -m lmm_engines.huggingface.model.model_llavanextvideo
 # connect to wildvision arena
-bash start_worker_on_arena.sh llava-hf/LLaVA-NeXT-Video-7B-hf 41411
+bash start_worker_on_arena.sh llava-hf/LLaVA-NeXT-Video-7B-hf 41411 1
+bash start_worker_on_arena.sh llava-hf/LLaVA-NeXT-Video-34B-hf 41411 2
 """

@@ -23,9 +23,10 @@ class DummyImageAdapter(BaseModelAdapter):
         load all the elements of the models here that will be used for your model's geneation, such as the model, tokenizer, processor, etc.
         Args:
             model_path (str): the path to the model, huggingface model id or local path
-            device (str): the device to run the model on
+            device (str): the device to run the model on. e.g. "cuda" or "cpu", it cannot be used to load a model, use device_map in from_pretrained_kwargs instead.
             from_pretrained_kwargs (dict): other kwargs to pass to the from_pretrained method.
-                It's better to ignore this one, and set your custom kwargs in the load_model method.
+                including device_map, torch_dtype, etc.
+                we use device_map so that we can run the model on multiple devices
         Returns:
             model: A nn.Module model or huggingface PreTrainedModel model
         """
@@ -34,7 +35,6 @@ class DummyImageAdapter(BaseModelAdapter):
         # if "torch_dtype" not in from_pretrained_kwargs:
         #     from_pretrained_kwargs["torch_dtype"] = torch.float16
         # self.torch_dtype = from_pretrained_kwargs["torch_dtype"]
-        # from_pretrained_kwargs["device_map"] = device
         
         # self.processor = AutoProcessor.from_pretrained(model_id)
         # self.model = LlavaForConditionalGeneration.from_pretrained(

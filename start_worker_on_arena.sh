@@ -1,5 +1,18 @@
 model_name=$1
 model_worker_port=$2
+num_gpus=$3
+if [ -z "$model_name" ]; then
+    echo "Please provide the model name as the first argument"
+    exit 1
+fi
+if [ -z "$model_worker_port" ]; then
+    echo "Please provide the model worker port as the second argument"
+    exit 1
+fi
+if [ -z "$num_gpus" ]; then
+    num_gpus=1
+    echo "Number of GPUs is not provided, default to 1"
+fi
 
 # hard coded for now
 controller_addr=http://34.19.37.54:8888 # hard coded for now, wildvision controller address
@@ -34,4 +47,4 @@ fi
 # above code is to get the public address of the worker, hard coded for now
 
 # add CUDA_VISIBLE_DEVICES=0 if you want to specify the GPU
-python -m lmm_engines.huggingface.model_worker --model-path $model_name --controller ${controller_addr} --port $model_worker_port --worker http://${bore_public_addr} --host=0.0.0.0
+python -m lmm_engines.huggingface.model_worker --model-path $model_name --controller ${controller_addr} --port $model_worker_port --worker http://${bore_public_addr} --host=0.0.0.0 --num-gpus $num_gpus
