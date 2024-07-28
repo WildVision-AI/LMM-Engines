@@ -33,6 +33,7 @@ setup(
         "matplotlib",
         "transformers_stream_generator",
         "einops",
-        "timm"
+        "timm",
+        "av"
     ],
 )

@@ -88,6 +88,12 @@ def decode_image(encoded_image:str) -> Image.Image:
     im_file = BytesIO(im_bytes)
     return Image.open(im_file)
 
+def encode_video(video_path:str) -> str:
+    with open(video_path, "rb") as f:
+        video_bytes = f.read()
+    video_64 = base64.b64encode(video_bytes).decode("utf-8")
+    return json.dumps(video_64)
+
 def decode_and_save_video(encoded_video:str, tmp_dir=None) -> str:
     """
     decode and save video from base64 encoded string
@@ -96,7 +102,7 @@ def decode_and_save_video(encoded_video:str, tmp_dir=None) -> str:
     """
     if tmp_dir is None:
         # Check for environment variables that might define the temporary directory
-        tmp_dir = Path(os.path.abspath(__file__)).parent / "tmp_log_videos"
+        tmp_dir = Path(os.path.abspath(__file__)).parent.parent / "tmp_log_videos"
     if not tmp_dir.exists():
         tmp_dir.mkdir(parents=True)
         

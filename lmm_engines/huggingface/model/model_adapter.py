@@ -407,6 +407,7 @@ from .model_llavanext import LLaVANeXTAdapter
 from .model_tinyllava import TinyLLaVAAdapter
 from .dummy_image_model import DummyImageAdapter
 from .dummy_video_model import DummyVideoAdapter
+from .model_llavanextvideo import LLaVANextVideoAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -434,3 +435,4 @@ register_model_adapter(BaseModelAdapter)
 register_model_adapter(TinyLLaVAAdapter)
 register_model_adapter(DummyImageAdapter)
 register_model_adapter(DummyVideoAdapter)
+register_model_adapter(LLaVANextVideoAdapter)

@@ -117,6 +117,7 @@ More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingfac
 ## TODO
 ### Transfering models from old arena codes into lmm-engines
 - [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py) (Example implementation by dongfu)
+- [x] add support for [model_llavanextvideo.py](./lmm_engines/huggingface/model/model_llavanextvideo.py) (Example implementation by dongfu)
 - [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
 - [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
 - [ ] add support for [model_idefics.py](./lmm_engines/huggingface/model/model_idefics)
