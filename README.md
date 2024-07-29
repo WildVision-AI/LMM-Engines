@@ -129,6 +129,7 @@ More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingfac
 ### Transfering models from old arena codes into lmm-engines
 - [x] add support for [model_tinyllava.py](./lmm_engines/huggingface/model/model_tinyllava.py) (Example implementation by dongfu)
 - [x] add support for [model_llavanextvideo.py](./lmm_engines/huggingface/model/model_llavanextvideo.py) (Example implementation by dongfu)
+- [x] add support for [model_llavanextvideoqwen.py](./lmm_engines/huggingface/model/model_llavanextvideoqwen.py) (ontributed by dongfu, on 2024-07-28)
 - [x] add support for [model_nvidia_api.py](./lmm_engines/huggingface/model/model_nvidia_api.py) (contributed by jing gu, on 2024-07-28)
 - [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
 - [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
@@ -140,7 +141,7 @@ More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingfac
 - [ ] add support for [model_qwenvl.py](./lmm_engines/huggingface/model/model_qwenvl)
 - [ ] add support for [model_uform.py](./lmm_engines/huggingface/model/model_uform)
 - [ ] add support for [model_videollama2.py](./lmm_engines/huggingface/model/model_videollama2)
-- [ ] add support for [model_videollava.py](./lmm_engines/huggingface/model/model_videollava)
+- [x] add support for [model_videollava.py](./lmm_engines/huggingface/model/model_videollava) (contributed by dongfu, on 2024-07-28)
 - [ ] add support for [model_yivlplus.py](./lmm_engines/huggingface/model/model_yivlplus)
 - [ ] add support for [model_yivl.py](./lmm_engines/huggingface/model/model_yivl)
 - [ ] add support for [model_reka.py](./lmm_engines/huggingface/model/model_reka)

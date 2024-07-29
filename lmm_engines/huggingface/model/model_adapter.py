@@ -413,7 +413,6 @@ from .model_idefics import IdeficsAdapter
 from .model_minicpmapi import MiniCPMAPIAdapter
 from .model_qwenvlapi import QwenVLAPIAdapter
 from .model_videollava import VideoLLaVAAdapter
-from .model_llavanext import LLaVANeXTAdapter
 # from .model_videollama2 import VideoLLaMA2Adapter
 from .model_tinyllava import TinyLLaVAAdapter
 from .dummy_image_model import DummyImageAdapter
@@ -423,6 +422,7 @@ from .model_nvidia_api import (
     LLaVAv1634bNvidiaAPIAdapter, 
     LLaVAv16Mistral7bNvidiaAPIAdapter
 )
+from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -444,7 +444,6 @@ register_model_adapter(IdeficsAdapter)
 register_model_adapter(MiniCPMAPIAdapter)
 register_model_adapter(QwenVLAPIAdapter)
 register_model_adapter(VideoLLaVAAdapter)
-register_model_adapter(LLaVANeXTAdapter)
 # register_model_adapter(VideoLLaMA2Adapter)
 register_model_adapter(BaseModelAdapter)
 register_model_adapter(TinyLLaVAAdapter)
@@ -453,3 +452,4 @@ register_model_adapter(DummyVideoAdapter)
 register_model_adapter(LLaVANextVideoAdapter)
 register_model_adapter(LLaVAv1634bNvidiaAPIAdapter)
 register_model_adapter(LLaVAv16Mistral7bNvidiaAPIAdapter)
+register_model_adapter(LLaVANextVideoQwenAdapter)

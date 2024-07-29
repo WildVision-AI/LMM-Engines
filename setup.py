@@ -34,6 +34,7 @@ setup(
         "transformers_stream_generator",
         "einops",
         "timm",
-        "av"
+        "av",
+        "opencv-python"
     ],
 )

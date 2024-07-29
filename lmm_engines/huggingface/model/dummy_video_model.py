@@ -58,10 +58,11 @@ class DummyVideoAdapter(BaseModelAdapter):
             {"text": ...}
         """
         # add your custom generation code here
-        # video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
-        # prompt = params["prompt"]["text"]
-        # generation_kwargs = params.copy()
-        # generation_kwargs.pop("prompt")
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        
         ...
         return {"text": "Hi, there! It's a dummy model here for testing video models. I'm not generating anything useful."}
         
@@ -76,6 +77,13 @@ class DummyVideoAdapter(BaseModelAdapter):
         }
         """
         # add your custom generation code here
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        # add streamer
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        generation_kwargs["streamer"] = streamer
         ...
         dummy_response = "Hi, there! It's a dummy model here for testing video models. I'm not generating anything useful."
         generated_text = ""

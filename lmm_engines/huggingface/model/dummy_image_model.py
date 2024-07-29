@@ -58,10 +58,10 @@ class DummyImageAdapter(BaseModelAdapter):
             {"text": ...}
         """
         # add your custom generation code here
-        # image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
-        # prompt = params["prompt"]["text"]
-        # generation_kwargs = params.copy()
-        # generation_kwargs.pop("prompt")
+        image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
         ...
         return {"text": "Hi, there! It's a dummy model here for testing image models. I'm not generating anything useful."}
         
@@ -76,6 +76,14 @@ class DummyImageAdapter(BaseModelAdapter):
         }
         """
         # add your custom generation code here
+        image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        # add streamer
+        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        generation_kwargs["streamer"] = streamer
+        
         ...
         dummy_response = "Hi, there! It's a dummy model here for testing image models. I'm not generating anything useful."
         generated_text = ""

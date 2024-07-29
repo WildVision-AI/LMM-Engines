@@ -2,16 +2,40 @@
 import torch
 from PIL import Image
 import json
-import base64
 import os
-import uuid
+import av
+import numpy as np
 from io import BytesIO
 from .model_adapter import BaseModelAdapter, register_model_adapter
 from ..conversation import get_conv_template, Conversation
-from ...utils import decode_image
-from transformers import AutoTokenizer, AutoModel, AutoProcessor, pipeline, TextIteratorStreamer, LlavaForConditionalGeneration
+from ...utils import decode_and_save_video
+from transformers import TextIteratorStreamer, VideoLlavaProcessor, VideoLlavaForConditionalGeneration
 from threading import Thread
 from typing import List
+from huggingface_hub import hf_hub_download
+
+
+def read_video_pyav(container, indices):
+    '''
+    Decode the video with PyAV decoder.
+
+    Args:
+        container (av.container.input.InputContainer): PyAV container.
+        indices (List[int]): List of frame indices to decode.
+
+    Returns:
+        np.ndarray: np array of decoded frames of shape (num_frames, height, width, 3).
+    '''
+    frames = []
+    container.seek(0)
+    start_index = indices[0]
+    end_index = indices[-1]
+    for i, frame in enumerate(container.decode(video=0)):
+        if i > end_index:
+            break
+        if i >= start_index and i in indices:
+            frames.append(frame)
+    return np.stack([x.to_ndarray(format="rgb24") for x in frames])
 
 class VideoLLaVAAdapter(BaseModelAdapter):
     """The model adapter for LanguageBind/Video-LLaVA-7B"""
@@ -23,94 +47,125 @@ class VideoLLaVAAdapter(BaseModelAdapter):
         return get_conv_template("video-llava")
     
     def load_model(self, model_path: str, device: str, from_pretrained_kwargs: dict = ...):
-        pass
+        """
+        load all the elements of the models here that will be used for your model's geneation, such as the model, tokenizer, processor, etc.
+        Args:
+            model_path (str): the path to the model, huggingface model id or local path
+            device (str): the device to run the model on. e.g. "cuda" or "cpu", it cannot be used to load a model, use device_map in from_pretrained_kwargs instead.
+            from_pretrained_kwargs (dict): other kwargs to pass to the from_pretrained method.
+                including device_map, torch_dtype, etc.
+                we use device_map so that we can run the model on multiple devices
+        Returns:
+            model: A nn.Module model or huggingface PreTrainedModel model
+        """
+        self.model = None
+        if "torch_dtype" not in from_pretrained_kwargs:
+            from_pretrained_kwargs["torch_dtype"] = torch.float16
+        print(from_pretrained_kwargs)
+        if not from_pretrained_kwargs.get("device_map"):
+            from_pretrained_kwargs["device_map"] = "cuda"
+        self.torch_dtype = from_pretrained_kwargs["torch_dtype"]
+        self.model = VideoLlavaForConditionalGeneration.from_pretrained(model_path, **from_pretrained_kwargs)
+        self.processor = VideoLlavaProcessor.from_pretrained(model_path)
+        
+        return self.model
     
     def generate(self, params:dict):
-        pass
+        """
+        generation
+        Args:
+            params:dict = {
+                "prompt": {
+                    "text": str,
+                    "video": str, # base64 encoded video
+                },
+                **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
+            }
+        Returns:
+            {"text": ...}
+        """
+        # add your custom generation code here
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        
+        container = av.open(video_path)
+
+        # sample uniformly 8 frames from the video
+        total_frames = container.streams.video[0].frames
+        indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+        clip = read_video_pyav(container, indices)
+
+        final_prompt = f"USER: <video>{prompt} ASSISTANT:"
+        inputs = self.processor(text=final_prompt, videos=clip, return_tensors="pt")
+
+        # Generate
+        generate_ids = self.model.generate(**inputs, **generation_kwargs)
+        input_len = inputs["input_ids"].shape[1]
+        generated_text = self.processor.batch_decode(generate_ids[:, input_len:], skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+        return {"text": generated_text}
     
     def generate_stream(self, params:dict):
-        pass
-    
-@torch.inference_mode()
-def generate_stream_videollava(model, tokenizer, processor, params, device, context_len, stream_interval, judge_sent_end=False):
-    prompt = params["prompt"]["text"]
-    
-    temperature = float(params.get("temperature", 0.2))
-    top_p = float(params.get("top_p", 0.7))
-    do_sample = temperature > 0.0
-    max_new_tokens = min(int(params.get("max_new_tokens", 200)), 200)
+        """
+        params:dict = {
+            "prompt": {
+                "text": str,
+                "image": str, # base64 image
+            },
+            **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
+        }
+        """
+        # add your custom generation code here
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
+        generation_kwargs = params.copy()
+        generation_kwargs.pop("prompt")
+        # add streamer
+        streamer = TextIteratorStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
+        generation_kwargs["streamer"] = streamer
         
-    import json
-    vision_input = torch.tensor(json.loads(params["prompt"]["video"]))
+        container = av.open(video_path)
+
+        # sample uniformly 8 frames from the video
+        total_frames = container.streams.video[0].frames
+        indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+        clip = read_video_pyav(container, indices)
+
+        final_prompt = f"USER: <video>{prompt} ASSISTANT:"
+        inputs = self.processor(text=final_prompt, videos=clip, return_tensors="pt")
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
+
+        # Generate
+        thread = Thread(target=self.model.generate, kwargs={**inputs, **generation_kwargs})
+        thread.start()
+        
+        generated_text = ""
+        for text in streamer:
+            generated_text += text
+            yield {"text": generated_text}
     
-    # conversation = [
-    #     {
-    #         "role": "User",
-    #         "content": f"<image_placeholder>{prompt}",
-    #         "images": [""]
-    #     },
-    #     {
-    #         "role": "Assistant",
-    #         "content": ""
-    #     }
-    # ]
-    print(">>> generate_stream_videollava")
-
-    disable_torch_init()
-    # video = '/private/home/yujielu/downloads/datasets/VideoChatGPT/Test_Videos/v__B7rGFDRIww.mp4'
-    inp = prompt#'Why is this video funny?'
-    # model_path = 'LanguageBind/Video-LLaVA-7B'
-    # cache_dir = 'cache_dir'
-    # device = 'cuda'
-    # load_4bit, load_8bit = True, False
-    # model_name = get_model_name_from_path(model_path)
-    # tokenizer, model, processor, _ = load_pretrained_model(model_path, None, model_name, load_8bit, load_4bit, device=device, cache_dir=cache_dir)
-    video_processor = processor['video']
-    conv_mode = "llava_v1"
-    conv = conv_templates[conv_mode].copy()
-    roles = conv.roles
-
-    # video_tensor = video_processor(video, return_tensors='pt')['pixel_values']
-    video_tensor = torch.stack([vision_input])
-    if type(video_tensor) is list:
-        tensor = [video.to(model.device, dtype=torch.float16) for video in video_tensor]
-    else:
-        tensor = video_tensor.to(model.device, dtype=torch.float16)
-
-    print(f"{roles[1]}: {inp}")
-    inp = ' '.join([DEFAULT_IMAGE_TOKEN] * model.get_video_tower().config.num_frames) + '\n' + inp
-    conv.append_message(conv.roles[0], inp)
-    conv.append_message(conv.roles[1], None)
-    prompt = conv.get_prompt()
-    input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
-    stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-    keywords = [stop_str]
-    stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
-
-    with torch.inference_mode():
-        output_ids = model.generate(
-            input_ids,
-            images=tensor,
-            do_sample=do_sample,
-            temperature=temperature,
-            max_new_tokens=max_new_tokens,
-            use_cache=True,
-            stopping_criteria=[stopping_criteria])
-
-    outputs = tokenizer.decode(output_ids[0, input_ids.shape[1]:]).strip()
-
-    yield {"text": outputs}
-    
+    def get_info(self):
+        return {
+            "type": "video",
+            "author": "Anonymous",
+            "organization": "Anonymous",
+            "model_size": None,
+            "model_link": None,
+        }
+        
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    model_path = "..."
+    model_path = "LanguageBind/Video-LLaVA-7B-hf"
     device = "cuda:0"
     from_pretrained_kwargs = {"torch_dtype": torch.float16}
     model_adapter = VideoLLaVAAdapter()
     model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter)
+    test_adapter(model_adapter, model_type="video")
     
 """
 python -m lmm_engines.huggingface.model.model_videollava
+# connect to wildvision arena
+bash start_worker_on_arena.sh LanguageBind/Video-LLaVA-7B-hf 41411 1
 """
