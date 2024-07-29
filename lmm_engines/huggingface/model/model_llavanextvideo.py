@@ -39,7 +39,7 @@ class LLaVANextVideoAdapter(BaseModelAdapter):
     """The model adapter for DummyVideoModel"""
 
     def match(self, model_path: str):
-        return "LLaVA-NeXT-Video".lower() in model_path.lower()
+        return "LLaVA-NeXT-Video".lower() in model_path.lower() and "LLaVA-NeXT-Video-32B-Qwen".lower() not in model_path.lower()
 
     def load_model(self, model_path: str, device:str="cuda", from_pretrained_kwargs: dict={}):
         """
@@ -57,7 +57,6 @@ class LLaVANextVideoAdapter(BaseModelAdapter):
         from_pretrained_kwargs["low_cpu_mem_usage"] = True
         if is_flash_attn_2_available():
             from_pretrained_kwargs["use_flash_attention_2"] = True
-        print(from_pretrained_kwargs)
         self.model = LlavaNextVideoForConditionalGeneration.from_pretrained(
             model_path, **from_pretrained_kwargs
         )
@@ -171,10 +170,8 @@ if __name__ == "__main__":
     from PIL import Image
     model_path = "llava-hf/LLaVA-NeXT-Video-7B-hf"
     device = "cuda:0"
-    from_pretrained_kwargs = {"torch_dtype": torch.float16}
     model_adapter = LLaVANextVideoAdapter()
-    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter, model_type="video")
+    test_adapter(model_adapter, model_path, device, model_type="video")
     
 """
 # local testing

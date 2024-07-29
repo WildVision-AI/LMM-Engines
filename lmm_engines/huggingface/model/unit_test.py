@@ -3,7 +3,7 @@ import requests
 from ...utils import encode_image, encode_video
 from PIL import Image
 from io import BytesIO
-from .model_adapter import BaseModelAdapter
+from .model_adapter import BaseModelAdapter, get_model_adapter, load_adapter
 from tqdm import tqdm
 from huggingface_hub import hf_hub_download
 from transformers.utils import logging
@@ -11,8 +11,27 @@ logging.set_verbosity_error()
 
 def test_adapter(
     model_adapter: BaseModelAdapter,
+    model_path: str,
+    device: str = "cuda",
+    num_gpus: int = 1,
     model_type="image",
 ):
+    matched_adapter = get_model_adapter(model_path)
+    print("\n## Testing model match() method...")
+    if model_adapter.__class__.__name__ != matched_adapter.__class__.__name__:
+        expected_adapter_name = model_adapter.__class__.__name__
+        matched_adapter_name = matched_adapter.__class__.__name__
+        ERROR_MSG = f"model path is {model_path}, expected model adapter '{expected_adapter_name}', but got model adapter '{matched_adapter_name}', " + \
+            f"Please check the `match()` method of '{expected_adapter_name}'."
+        raise ValueError(ERROR_MSG)
+    print("### Model match() method passed.")
+    
+    print("\n## Testing model load_model() method...")
+    model_adapter = load_adapter(model_path, device=device, num_gpus=num_gpus)
+    
+    print("\n## load_model() method returned model: ", model_adapter.model)
+    print("### Model load_model() method passed.")
+    
     if model_type == "image":
         image_url = "https://llava.hliu.cc/file=/nobackup/haotian/tmp/gradio/ca10383cc943e99941ecffdc4d34c51afb2da472/extreme_ironing.jpg"
         image = Image.open(BytesIO(requests.get(image_url).content))

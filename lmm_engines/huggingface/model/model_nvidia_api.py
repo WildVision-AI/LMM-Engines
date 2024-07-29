@@ -235,17 +235,14 @@ if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
     device = "cuda:0"
-    from_pretrained_kwargs = {"torch_dtype": torch.float16}
     
     model_path = "llava_v1_6_34b_nvidia_api"
     model_adapter = LLaVAv1634bNvidiaAPIAdapter()
-    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter)
+    test_adapter(model_adapter, model_path, device)
     
     model_path = "llava_v1_6_mistral_7b_nvidia_api"
     model_adapter = LLaVAv16Mistral7bNvidiaAPIAdapter()
-    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter)
+    test_adapter(model_adapter, model_path, device)
     
 """
 export NVIDIA_API_KEY={your_nvidia_api_key} # see https://build.nvidia.com/explore/vision

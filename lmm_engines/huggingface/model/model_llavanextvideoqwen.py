@@ -71,11 +71,14 @@ class LLaVANextVideoQwenAdapter(BaseModelAdapter):
         """
         model_name = get_model_name_from_path(model_path)
         load_kwargs = {
-            "device_map": from_pretrained_kwargs.get("device_map", "auto"),
+            "device_map": from_pretrained_kwargs.get("device_map", "cuda"),
             "load_4bit": from_pretrained_kwargs.get("load_in_4bit", False),
             "load_8bit": from_pretrained_kwargs.get("load_in_8bit", False),
+            "max_memory": from_pretrained_kwargs.get("max_memory", None),
         }
+        load_kwargs['device_map'] = "auto" # seem there will be some problems using "cuda"
         tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, None, model_name, **load_kwargs)
+        self.device = device
         self.model = model
         self.tokenizer = tokenizer
         self.image_processor = image_processor
@@ -125,18 +128,17 @@ class LLaVANextVideoQwenAdapter(BaseModelAdapter):
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
 
-        input_ids = tokenizer_image_token(prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
+        input_ids = tokenizer_image_token(prompt, self.tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(self.model.device)
         if self.tokenizer.pad_token_id is None:
             if "qwen" in self.tokenizer.name_or_path.lower():
                 print("Setting pad token to bos token for qwen model.")
                 self.tokenizer.pad_token_id = 151643
                 
-        attention_masks = input_ids.ne(self.tokenizer.pad_token_id).long().cuda()
+        attention_masks = input_ids.ne(self.tokenizer.pad_token_id).long().to(self.model.device)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
         keywords = [stop_str]
         stopping_criteria = KeywordsStoppingCriteria(keywords, self.tokenizer, input_ids)
-
 
         with torch.inference_mode():
             if "mistral" not in self.model.config._name_or_path.lower():
@@ -246,14 +248,12 @@ if __name__ == "__main__":
     from PIL import Image
     model_path = "lmms-lab/LLaVA-NeXT-Video-32B-Qwen"
     device = "cuda"
-    from_pretrained_kwargs = {"torch_dtype": torch.float16}
     model_adapter = LLaVANextVideoQwenAdapter()
-    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter, model_type="video")
+    test_adapter(model_adapter, model_path, device, model_type="video", num_gpus=2)
     
 """
 # local testing
 python -m lmm_engines.huggingface.model.model_llavanextvideoqwen
 # connect to wildvision arena
-bash start_worker_on_arena.sh lmms-lab/LLaVA-NeXT-Video-32B-Qwen 41411
+bash start_worker_on_arena.sh lmms-lab/LLaVA-NeXT-Video-32B-Qwen 41411 2
 """

@@ -88,10 +88,8 @@ if __name__ == "__main__":
     from PIL import Image
     model_path = "..."
     device = "cuda:0"
-    from_pretrained_kwargs = {"torch_dtype": torch.float16}
     model_adapter = QwenVLAdapter()
-    model_adapter.load_model(model_path, device, from_pretrained_kwargs)
-    test_adapter(model_adapter)
+    test_adapter(model_adapter, model_path, device)
 """
 python -m lmm_engines.huggingface.model.model_qwenvl
 """

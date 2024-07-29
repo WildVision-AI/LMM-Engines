@@ -24,9 +24,9 @@ python -m lmm_engines.huggingface.model.dummy_video_model
 
 First run `bash install_bore.sh` once to install bore.
 ```bash
-bash start_worker_on_arena.sh ${model_name} ${model_port}
+bash start_worker_on_arena.sh ${model_name} ${model_port} ${num_gpu}
 # Example
-bash start_worker_on_arena.sh dummy_image_model 41411
+bash start_worker_on_arena.sh dummy_image_model 41411 1
 ```
 Then your worker shall be registered to the arena. You can check it by visiting 🤗 [WildVision/vision-arena](https://huggingface.co/spaces/WildVision/vision-arena)
 

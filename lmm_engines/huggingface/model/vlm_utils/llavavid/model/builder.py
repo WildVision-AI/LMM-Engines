@@ -23,8 +23,8 @@ from . import *
 from ..constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 
 
-def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", overwrite_config=None, attn_implementation="flash_attention_2"):
-    kwargs = {"device_map": device_map}
+def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", overwrite_config=None, attn_implementation="flash_attention_2", **kwargs):
+    kwargs["device_map"] = device_map
 
     # import pdb;pdb.set_trace()
     if load_8bit:
