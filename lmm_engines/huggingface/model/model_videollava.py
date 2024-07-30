@@ -99,6 +99,7 @@ class VideoLLaVAAdapter(BaseModelAdapter):
 
         final_prompt = f"USER: <video>{prompt} ASSISTANT:"
         inputs = self.processor(text=final_prompt, videos=clip, return_tensors="pt")
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
         # Generate
         generate_ids = self.model.generate(**inputs, **generation_kwargs)
@@ -158,7 +159,7 @@ if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
     model_path = "LanguageBind/Video-LLaVA-7B-hf"
-    device = "cuda:0"
+    device = "cuda"
     model_adapter = VideoLLaVAAdapter()
     test_adapter(model_adapter, model_path, device, model_type="video")
     
