@@ -249,7 +249,7 @@ if __name__ == "__main__":
     model_path = "lmms-lab/LLaVA-NeXT-Video-32B-Qwen"
     device = "cuda"
     model_adapter = LLaVANextVideoQwenAdapter()
-    test_adapter(model_adapter, model_path, device, model_type="video", num_gpus=2)
+    test_adapter(model_adapter, model_path, device, num_gpus=2)
     
 """
 # local testing

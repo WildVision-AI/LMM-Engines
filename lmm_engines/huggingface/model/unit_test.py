@@ -1,4 +1,5 @@
 import time
+import os
 import requests
 from ...utils import encode_image, encode_video
 from PIL import Image
@@ -7,14 +8,16 @@ from .model_adapter import BaseModelAdapter, get_model_adapter, load_adapter
 from tqdm import tqdm
 from huggingface_hub import hf_hub_download
 from transformers.utils import logging
+from pathlib import Path
 logging.set_verbosity_error() 
 
+# test_image_path = "../../test.jpg"
+test_image_path = Path(__file__).parent.parent.parent / "test.jpg"
 def test_adapter(
     model_adapter: BaseModelAdapter,
     model_path: str,
     device: str = "cuda",
     num_gpus: int = 1,
-    model_type="image",
 ):
     matched_adapter = get_model_adapter(model_path)
     print("\n## Testing model match() method...")
@@ -31,10 +34,19 @@ def test_adapter(
     
     print("\n## load_model() method returned model: ", model_adapter.model)
     print("### Model load_model() method passed.")
+
+
+    print("\n## Testing model get_info() method...")
+    model_info = model_adapter.get_info()
+    if not model_info['type'] in ['image', 'video']:
+        raise ValueError(f"The 'type' key in the get_info() returning dictionary should be either 'image' or 'video'. but got '{model_info['type']}'")
+    model_type = model_info['type']
+    print("### Model get_info() method passed.")
     
     if model_type == "image":
-        image_url = "https://llava.hliu.cc/file=/nobackup/haotian/tmp/gradio/ca10383cc943e99941ecffdc4d34c51afb2da472/extreme_ironing.jpg"
-        image = Image.open(BytesIO(requests.get(image_url).content))
+        # image_url = "https://llava.hliu.cc/file=/nobackup/haotian/tmp/gradio/ca10383cc943e99941ecffdc4d34c51afb2da472/extreme_ironing.jpg"
+        # image = Image.open(BytesIO(requests.get(image_url).content))
+        image = Image.open(test_image_path)
         params = {
             "prompt": {
                 "text": "What is unusual about this image?",
@@ -44,7 +56,7 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
-    else:
+    elif model_type == "video":
         video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
         encoded_video = encode_video(video_path)
         params = {
@@ -56,6 +68,8 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
+    else:
+        raise ValueError(f"Model type '{model_type}' is not supported.")
     print("\n## Testing model generate() method...")
     generated_text = model_adapter.generate(params)
     print("### Final generated text: \n", generated_text['text'])

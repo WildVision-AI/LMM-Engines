@@ -81,8 +81,8 @@ class DummyImageAdapter(BaseModelAdapter):
         generation_kwargs = params.copy()
         generation_kwargs.pop("prompt")
         # add streamer
-        streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
-        generation_kwargs["streamer"] = streamer
+        # streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+        # generation_kwargs["streamer"] = streamer
         
         ...
         dummy_response = "Hi, there! It's a dummy model here for testing image models. I'm not generating anything useful."
@@ -104,8 +104,8 @@ class DummyImageAdapter(BaseModelAdapter):
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    model_path = "..."
-    device = "cuda:0"
+    model_path = "dummy_image_model"
+    device = "cuda"
     model_adapter = DummyImageAdapter()
     test_adapter(model_adapter, model_path, device)
     

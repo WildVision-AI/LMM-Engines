@@ -161,7 +161,7 @@ if __name__ == "__main__":
     model_path = "LanguageBind/Video-LLaVA-7B-hf"
     device = "cuda"
     model_adapter = VideoLLaVAAdapter()
-    test_adapter(model_adapter, model_path, device, model_type="video")
+    test_adapter(model_adapter, model_path, device)
     
 """
 python -m lmm_engines.huggingface.model.model_videollava

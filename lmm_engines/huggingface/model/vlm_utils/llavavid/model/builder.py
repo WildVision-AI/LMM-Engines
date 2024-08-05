@@ -21,6 +21,52 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAn
 import torch
 from . import *
 from ..constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
+from typing import Optional
+from torch import nn
+
+def resize_token_embeddings(
+        model, new_num_tokens: Optional[int] = None, pad_to_multiple_of: Optional[int] = None
+    ) -> nn.Embedding:
+        """
+        Resizes input token embeddings matrix of the model if `new_num_tokens != config.vocab_size`.
+
+        Takes care of tying weights embeddings afterwards if the model class has a `tie_weights()` method.
+
+        Arguments:
+            new_num_tokens (`int`, *optional*):
+                The new number of tokens in the embedding matrix. Increasing the size will add newly initialized
+                vectors at the end. Reducing the size will remove vectors from the end. If not provided or `None`, just
+                returns a pointer to the input tokens `torch.nn.Embedding` module of the model without doing anything.
+            pad_to_multiple_of (`int`, *optional*):
+                If set will pad the embedding matrix to a multiple of the provided value.If `new_num_tokens` is set to
+                `None` will just pad the embedding to a multiple of `pad_to_multiple_of`.
+
+                This is especially useful to enable the use of Tensor Cores on NVIDIA hardware with compute capability
+                `>= 7.5` (Volta), or on TPUs which benefit from having sequence lengths be a multiple of 128. For more
+                details about this, or help on choosing the correct value for resizing, refer to this guide:
+                https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#requirements-tc
+
+        Return:
+            `torch.nn.Embedding`: Pointer to the input tokens Embeddings Module of the model.
+        """
+        model_embeds = model._resize_token_embeddings(new_num_tokens, pad_to_multiple_of)
+        if new_num_tokens is None and pad_to_multiple_of is None:
+            return model_embeds
+
+        # Update base model and current model config
+        if hasattr(model.config, "text_config"):
+            if isinstance(model.config.text_config, dict):
+                model.config.text_config["vocab_size"] = model_embeds.weight.shape[0]
+            else:
+                model.config.text_config.vocab_size = model_embeds.weight.shape[0]
+        # TODO: to be removed after v4.42, config.vocab_size is deprecated for models that have a config.text_config
+        model.config.vocab_size = model_embeds.weight.shape[0]
+        model.vocab_size = model_embeds.weight.shape[0]
+
+        # Tie weights again if needed
+        model.tie_weights()
+
+        return model_embeds
 
 
 def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", overwrite_config=None, attn_implementation="flash_attention_2", **kwargs):
@@ -167,7 +213,8 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
         tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
     if mm_use_im_start_end:
         tokenizer.add_tokens([DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN], special_tokens=True)
-    model.resize_token_embeddings(len(tokenizer))
+    # model.resize_token_embeddings(len(tokenizer))
+    resize_token_embeddings(model, new_num_tokens=len(tokenizer))
 
     vision_tower = model.get_vision_tower()
     if not vision_tower.is_loaded:
