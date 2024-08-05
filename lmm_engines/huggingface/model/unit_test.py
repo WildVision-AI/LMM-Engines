@@ -48,7 +48,7 @@ def test_adapter(
         video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
         params = {
             "prompt": {
-                "text": "What is happening in this video?",
+                "text": "Describe this video in detail",
                 "video": video_path
             },
             "do_sample": False,

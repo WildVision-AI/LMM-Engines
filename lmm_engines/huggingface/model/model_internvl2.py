@@ -43,7 +43,7 @@ class InternVL2Adapter(BaseModelAdapter):
         from_pretrained_kwargs["trust_remote_code"] = True
         self.model = AutoModel.from_pretrained(
             model_path, **from_pretrained_kwargs
-        ).eval().to(device)
+        ).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, use_fast=False)
         
         return self.model
