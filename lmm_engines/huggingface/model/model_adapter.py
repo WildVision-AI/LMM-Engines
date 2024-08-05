@@ -424,6 +424,7 @@ from .model_nvidia_api import (
     LLaVAv16Mistral7bNvidiaAPIAdapter
 )
 from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
+from .model_internvl2 import InternVL2Adapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -454,3 +455,4 @@ register_model_adapter(LLaVANextVideoAdapter)
 register_model_adapter(LLaVAv1634bNvidiaAPIAdapter)
 register_model_adapter(LLaVAv16Mistral7bNvidiaAPIAdapter)
 register_model_adapter(LLaVANextVideoQwenAdapter)
+register_model_adapter(InternVL2Adapter)

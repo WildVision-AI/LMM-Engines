@@ -44,6 +44,17 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
+    elif model_type == "raw_video":
+        video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
+        params = {
+            "prompt": {
+                "text": "What is happening in this video?",
+                "video": video_path
+            },
+            "do_sample": False,
+            "top_p": 1.0,
+            "max_new_tokens": 200,
+        }
     else:
         video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
         encoded_video = encode_video(video_path)
