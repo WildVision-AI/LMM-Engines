@@ -69,7 +69,6 @@ class NvidiaAPIAdapter(BaseModelAdapter):
         self.model = model_path
         if not self.api_key:
             raise ValueError("NVIDIA_API_KEY environment variable is not set")
-        print(self.model)
         return self.model
     
     def generate(self, params:dict):
@@ -100,6 +99,10 @@ class NvidiaAPIAdapter(BaseModelAdapter):
         "Accept": "text/event-stream" if stream else "application/json"
         }
 
+        temperature = params.get("temperature", 0.0)
+        if abs(temperature) < 0.01:
+            temperature = 0.01
+            
         payload = {
         "messages": [
             {
@@ -108,11 +111,14 @@ class NvidiaAPIAdapter(BaseModelAdapter):
             }
         ],
         "max_tokens": params.get("max_new_tokens", params.get("max_tokens", 512)),
-        "temperature": params.get("temperature", 0.0),
+        "temperature": temperature,
         "top_p": params.get("top_p", 1.0),
         "stream": stream
         }
-
+        
+        if params.get("do_sample") is not None:
+            payload["do_sample"] = params["do_sample"]
+            
         response = requests.post(self.invoke_url, headers=headers, json=payload)
         text = convert_response_to_text(response, stream)
 
@@ -142,6 +148,9 @@ class NvidiaAPIAdapter(BaseModelAdapter):
         "Accept": "text/event-stream" if stream else "application/json"
         }
 
+        temperature = params.get("temperature", 0.0)
+        if abs(temperature) < 0.01:
+            temperature = 0.01
         payload = {
         "messages": [
             {
@@ -150,10 +159,12 @@ class NvidiaAPIAdapter(BaseModelAdapter):
             }
         ],
         "max_tokens": params.get("max_new_tokens", params.get("max_tokens", 512)),
-        "temperature": params.get("temperature", 0.0),
+        "temperature": temperature,
         "top_p": params.get("top_p", 1.0),
         "stream": stream
         }
+        if params.get("do_sample") is not None:
+            payload["do_sample"] = params["do_sample"]
 
         response = requests.post(self.invoke_url, headers=headers, json=payload, stream=stream)
 
@@ -230,18 +241,135 @@ class LLaVAv16Mistral7bNvidiaAPIAdapter(NvidiaAPIAdapter):
             "model_link": "https://build.nvidia.com/explore/vision#llava16-mistral-7b"
         }
         
+        
+class Phi3VisionNvidiaAPIAdapter(NvidiaAPIAdapter):
+    """The model adapter for LLaVA v1.6 Mistral 7b Nvidia API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/microsoft/phi-3-vision-128k-instruct"
+    
+    def match(self, model_path: str):
+        return "phi-3-vision-128k-instruct-nvidia-api".lower() in model_path.lower()
+    
+    def generate(self, params: dict):
+        # remove do_sample from params
+        if params.get("do_sample") is not None:
+            params.pop("do_sample")
+        return super().generate(params)
+    
+    def generate_stream(self, params: dict):
+        # remove do_sample from params
+        if params.get("do_sample") is not None:
+            params.pop("do_sample")
+        return super().generate_stream(params)
+    
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "...",
+            "organization": "...",
+            "model_size": "7b",
+            "model_link": "https://build.nvidia.com/explore/vision#phi-3-vision-128k-instruct"
+        }
+        
+class Neva22BNvidiaAPIAdapter(NvidiaAPIAdapter):
+    """The model adapter for LLaVA v1.6 Mistral 7b Nvidia API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/nvidia/neva-22b"
+    
+    def generate(self, params: dict):
+        # remove do_sample from params
+        if params.get("do_sample") is not None:
+            params.pop("do_sample")
+        return super().generate(params)
+    
+    def generate_stream(self, params: dict):
+        # remove do_sample from params
+        if params.get("do_sample") is not None:
+            params.pop("do_sample")
+        return super().generate_stream(params)
+    
+    def match(self, model_path: str):
+        return "neva-22b-nvidia-api".lower() in model_path.lower()
+    
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "...",
+            "organization": "...",
+            "model_size": "7b",
+            "model_link": "https://build.nvidia.com/explore/vision?snippet_tab=Python#neva-22b"
+        }
+        
+        
+class PaliGemmaNvidiaAPIAdapter(NvidiaAPIAdapter):
+    """The model adapter for LLaVA v1.6 Mistral 7b Nvidia API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.invoke_url = "https://ai.api.nvidia.com/v1/vlm/google/paligemma"
+    
+    def match(self, model_path: str):
+        return "paligemma-nvidia-api".lower() in model_path.lower()
+    
+    def generate(self, params: dict):
+        # add do_sample to params
+        if params.get("do_sample") is not None and params["do_sample"]:
+            params.pop("do_sample")
+            params['temperature'] = 0.01
+        else:
+            params.pop("do_sample")
+        
+        return super().generate(params)
+    
+    def generate_stream(self, params: dict):
+        # add do_sample to params
+        if params.get("temperature") is None:
+            params["temperature"] = 0.0
+        if abs(params.get("temperature")) < 0.01:
+            params["temperature"] = 0.01
+        if params.get("do_sample") is not None:
+            params.pop("do_sample")
+        return super().generate_stream(params)
+    
+    def get_info(self):
+        return {
+            "type": "image",
+            "author": "...",
+            "organization": "...",
+            "model_size": "7b",
+            "model_link": "https://build.nvidia.com/explore/vision?snippet_tab=Python#google-paligemma"
+        }
+        
     
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    device = "cuda:0"
+    device = "cuda"
     
-    model_path = "llava_v1_6_34b_nvidia_api"
-    model_adapter = LLaVAv1634bNvidiaAPIAdapter()
+    # now removed from nvidia api server
+    # model_path = "llava_v1_6_34b_nvidia_api"
+    # model_adapter = LLaVAv1634bNvidiaAPIAdapter()
+    # test_adapter(model_adapter, model_path, device)
+    
+    # now removed from nvidia api server
+    # model_path = "llava_v1_6_mistral_7b_nvidia_api"
+    # model_adapter = LLaVAv16Mistral7bNvidiaAPIAdapter()
+    # test_adapter(model_adapter, model_path, device)
+    
+    model_path = "phi-3-vision-128k-instruct-nvidia-api"
+    model_adapter = Phi3VisionNvidiaAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     
-    model_path = "llava_v1_6_mistral_7b_nvidia_api"
-    model_adapter = LLaVAv16Mistral7bNvidiaAPIAdapter()
+    model_path = "neva-22b-nvidia-api"
+    model_adapter = Neva22BNvidiaAPIAdapter()
+    test_adapter(model_adapter, model_path, device)
+    
+    model_path = "paligemma-nvidia-api"
+    model_adapter = PaliGemmaNvidiaAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     
 """
@@ -251,4 +379,7 @@ python -m lmm_engines.huggingface.model.model_nvidia_api
 # connect to wildvision arena
 bash start_worker_on_arena.sh llava_v1_6_34b_nvidia_api 41410
 bash start_worker_on_arena.sh llava_v1_6_mistral_7b_nvidia_api 41411
+bash start_worker_on_arena.sh phi-3-vision-128k-instruct-nvidia-api 41412
+bash start_worker_on_arena.sh neva-22b-nvidia-api 41413
+bash start_worker_on_arena.sh paligemma-nvidia-api 41414
 """

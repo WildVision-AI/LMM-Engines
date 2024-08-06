@@ -421,7 +421,10 @@ from .dummy_video_model import DummyVideoAdapter
 from .model_llavanextvideo import LLaVANextVideoAdapter
 from .model_nvidia_api import (
     LLaVAv1634bNvidiaAPIAdapter, 
-    LLaVAv16Mistral7bNvidiaAPIAdapter
+    LLaVAv16Mistral7bNvidiaAPIAdapter,
+    Neva22BNvidiaAPIAdapter,
+    Phi3VisionNvidiaAPIAdapter,
+    PaliGemmaNvidiaAPIAdapter
 )
 from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
 
@@ -454,3 +457,6 @@ register_model_adapter(LLaVANextVideoAdapter)
 register_model_adapter(LLaVAv1634bNvidiaAPIAdapter)
 register_model_adapter(LLaVAv16Mistral7bNvidiaAPIAdapter)
 register_model_adapter(LLaVANextVideoQwenAdapter)
+register_model_adapter(Neva22BNvidiaAPIAdapter)
+register_model_adapter(Phi3VisionNvidiaAPIAdapter)
+register_model_adapter(PaliGemmaNvidiaAPIAdapter)
