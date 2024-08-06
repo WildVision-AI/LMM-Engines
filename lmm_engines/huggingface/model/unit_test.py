@@ -64,10 +64,6 @@ def test_adapter(
                 "text": "What is happening in this video?",
                 "video": encoded_video
             },
-            "internvl2_prompt": {
-                "text": "Describe this video in detail",
-                "video": video_path
-            },
             "do_sample": False,
             "top_p": 1.0,
             "max_new_tokens": 200,

@@ -7,6 +7,7 @@ from io import BytesIO
 from .model_adapter import BaseModelAdapter, register_model_adapter
 from ..conversation import get_conv_template, Conversation
 from .videollm_utils.internvl2.utils import load_video
+from ...utils import decode_and_save_video
 from transformers import TextIteratorStreamer, AutoModel, AutoProcessor, AutoTokenizer
 from threading import Thread
 from typing import List
@@ -53,9 +54,9 @@ class InternVL2Adapter(BaseModelAdapter):
         generation
         Args:
             params:dict = {
-                "internvl2_prompt": {
+                "prompt": {
                     "text": str,
-                    "video": str, # video path
+                    "video": str, # base64 encoded video
                 },
                 **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
             }
@@ -63,10 +64,10 @@ class InternVL2Adapter(BaseModelAdapter):
             {"text": ...}
         """
         # add your custom generation code here
-        video_path = params["internvl2_prompt"]["video"] # This will save the video to a file and return the path
-        prompt = params["internvl2_prompt"]["text"]
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
-        generation_kwargs.pop("internvl2_prompt")
+        generation_kwargs.pop("prompt")
         pixel_values, num_patches_list = load_video(video_path, num_segments=8, max_num=1)
         pixel_values = pixel_values.to(torch.bfloat16).to(self.model.device)
         video_prefix = ''.join([f'Frame{i+1}: <image>\n' for i in range(len(num_patches_list))])
@@ -79,17 +80,17 @@ class InternVL2Adapter(BaseModelAdapter):
     def generate_stream(self, params:dict):
         """
         params:dict = {
-            "internvl2_prompt": {
+            "prompt": {
                 "text": str,
-                "video": str, # video path
+                "video": str, # base64 encoded video
             },
             **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
         }
         """
-        video_path = params["internvl2_prompt"]["video"] # This will save the video to a file and return the path
-        prompt = params["internvl2_prompt"]["text"]
+        video_path = decode_and_save_video(params["prompt"]["video"]) # This will save the video to a file and return the path
+        prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
-        generation_kwargs.pop("internvl2_prompt")
+        generation_kwargs.pop("prompt")
         pixel_values, num_patches_list = load_video(video_path, num_segments=8, max_num=1)
         pixel_values = pixel_values.to(torch.bfloat16).to(self.model.device)
         video_prefix = ''.join([f'Frame{i+1}: <image>\n' for i in range(len(num_patches_list))])
