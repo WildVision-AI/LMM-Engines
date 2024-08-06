@@ -427,6 +427,7 @@ from .model_nvidia_api import (
     PaliGemmaNvidiaAPIAdapter
 )
 from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
+from .model_internvl2 import InternVL2Adapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -460,3 +461,4 @@ register_model_adapter(LLaVANextVideoQwenAdapter)
 register_model_adapter(Neva22BNvidiaAPIAdapter)
 register_model_adapter(Phi3VisionNvidiaAPIAdapter)
 register_model_adapter(PaliGemmaNvidiaAPIAdapter)
+register_model_adapter(InternVL2Adapter)
