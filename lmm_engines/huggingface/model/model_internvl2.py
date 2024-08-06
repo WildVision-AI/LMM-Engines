@@ -113,11 +113,11 @@ class InternVL2Adapter(BaseModelAdapter):
             
     def get_info(self):
         return {
-            "type": "raw_video",
-            "author": "Anonymous",
-            "organization": "Anonymous",
-            "model_size": None,
-            "model_link": None,
+            "type": "video",
+            "author": "Chen, Zhe and Wu, Jiannan and Wang, Wenhai and Su, Weijie and Chen, Guo and Xing, Sen and Zhong, Muyan and Zhang, Qinglong and Zhu, Xizhou and Lu, Lewei and Li, Bin and Luo, Ping and Lu, Tong and Qiao, Yu and Dai, Jifeng",
+            "organization": "OpenGVLab",
+            "model_size": "8B",
+            "model_link": "https://huggingface.co/OpenGVLab/InternVL2-8B",
         }
     
 if __name__ == "__main__":
