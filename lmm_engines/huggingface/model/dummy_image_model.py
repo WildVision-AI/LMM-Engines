@@ -94,7 +94,7 @@ class DummyImageAdapter(BaseModelAdapter):
     
     def get_info(self):
         return {
-            "type": "image",
+            "type": "video",
             "author": "Anonymous",
             "organization": "Anonymous",
             "model_size": None,
