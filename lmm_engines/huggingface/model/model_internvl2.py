@@ -126,7 +126,7 @@ if __name__ == "__main__":
     model_path = "OpenGVLab/InternVL2-8B"
     device = "cuda"
     model_adapter = InternVL2Adapter()
-    test_adapter(model_adapter, model_path, device, model_type="video")
+    test_adapter(model_adapter, model_path, device)
     
 """
 # local testing
