@@ -171,7 +171,7 @@ if __name__ == "__main__":
     model_path = "llava-hf/LLaVA-NeXT-Video-7B-hf"
     device = "cuda:0"
     model_adapter = LLaVANextVideoAdapter()
-    test_adapter(model_adapter, model_path, device, model_type="video")
+    test_adapter(model_adapter, model_path, device)
     
 """
 # local testing
