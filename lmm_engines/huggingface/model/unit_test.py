@@ -44,10 +44,15 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
-    elif model_type == "raw_video":
+    elif model_type == "video":
         video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
+        encoded_video = encode_video(video_path)
         params = {
             "prompt": {
+                "text": "What is happening in this video?",
+                "video": encoded_video
+            },
+            "internvl2_prompt": {
                 "text": "Describe this video in detail",
                 "video": video_path
             },
@@ -56,17 +61,7 @@ def test_adapter(
             "max_new_tokens": 200,
         }
     else:
-        video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
-        encoded_video = encode_video(video_path)
-        params = {
-            "prompt": {
-                "text": "What is happening in this video?",
-                "video": encoded_video
-            },
-            "do_sample": False,
-            "top_p": 1.0,
-            "max_new_tokens": 200,
-        }
+        raise ValueError(f"Model type '{model_type}' is not supported.")
     print("\n## Testing model generate() method...")
     generated_text = model_adapter.generate(params)
     print("### Final generated text: \n", generated_text['text'])
