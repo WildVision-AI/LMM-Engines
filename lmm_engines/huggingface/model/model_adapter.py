@@ -397,7 +397,7 @@ def remove_parent_directory_name(model_path):
 from .model_instructblip import InstructBLIPAdapter
 from .model_claude import ClaudeAdapter
 from .model_openai import OpenAIAdapter
-from .model_cogvlm import CogVLMAdapter
+from .model_cogvlm import CogVLMAdapter, CogVLM2VideoAdapter
 from .model_llavaapi import LlavaAPIAdapter
 from .model_gemini import GeminiAdapter
 from .model_llava_v1_5 import LLaVAv15Adapter
@@ -438,6 +438,7 @@ register_model_adapter(LLaVAv16Adapter)
 register_model_adapter(QwenVLAdapter)
 register_model_adapter(InstructBLIPAdapter)
 register_model_adapter(CogVLMAdapter)
+register_model_adapter(CogVLM2VideoAdapter)
 register_model_adapter(MiniCPMAdapter)
 register_model_adapter(UFormAdapter)
 register_model_adapter(DeepSeekVLAdapter)
