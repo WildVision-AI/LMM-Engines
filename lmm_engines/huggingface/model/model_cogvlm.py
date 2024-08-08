@@ -181,4 +181,6 @@ if __name__ == "__main__":
     test_adapter(model_adapter, model_path, device)
 """
 python -m lmm_engines.huggingface.model.model_cogvlm
+# connect to wildvision arena
+bash start_worker_on_arena.sh THUDM/cogvlm2-video-llama3-chat 41417 1
 """
