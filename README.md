@@ -10,6 +10,11 @@ pip install flash-attn --no-build-isolation # optional, for faster inference
 ```bash
 bash install_bore.sh
 ```
+- some models may require additional dependencies, see the top of [`setup.py`](./setup.py) for details. To install extra dependencies for a specific model, you can run
+```bash
+pip install -e .[cogvlm2-video] # for cogvlm2-video
+```
+(Note: the extra dependencies for different models might conflict with each other, so you should better create a new virtual environment for each model.)
 
 ## Usage
 
