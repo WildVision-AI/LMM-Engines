@@ -1,5 +1,14 @@
 from setuptools import setup, find_packages
 
+model_specific_requirement_files = {
+    "cogvlm2-video": "lmm_engines/huggingface/model/videollm_utils/cogvlm/requirements.txt"
+}
+
+extra_requirements = {}
+for model, requirement_file in model_specific_requirement_files.items():
+    with open(requirement_file) as f:
+        extra_requirements[model] = f.read().splitlines()
+    
 setup(
     name='lmm-engines',
     version='0.0.1',
@@ -21,14 +30,11 @@ setup(
         "numpy",
         "requests",
         "sentencepiece",
-        "vllm",
-        "together",
         "icecream",
         "prettytable",
-        "sglang[all]",
         "mistralai",
         "anthropic",
-        "peft",
+        "peft>=0.11.0",
         "decord",
         "matplotlib",
         "transformers_stream_generator",
@@ -37,4 +43,9 @@ setup(
         "av",
         "opencv-python"
     ],
+    extras_require={
+        **extra_requirements,
+        "vllm": ["vllm"],
+        "sglang": ["sglang[all]"],
+    }
 )
