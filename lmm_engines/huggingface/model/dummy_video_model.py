@@ -71,7 +71,7 @@ class DummyVideoAdapter(BaseModelAdapter):
         params:dict = {
             "prompt": {
                 "text": str,
-                "image": str, # base64 image
+                "video": str, # base64 encoded video
             },
             **generation_kwargs # other generation kwargs, like temperature, top_p, max_new_tokens, etc.
         }
