@@ -41,7 +41,10 @@ setup(
         "einops",
         "timm",
         "av",
-        "opencv-python"
+        "opencv-python",
+        'uvicorn',
+        'datasets',
+        'fastapi',
     ],
     extras_require={
         **extra_requirements,
