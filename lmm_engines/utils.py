@@ -10,6 +10,9 @@ import requests
 import traceback
 import threading
 import datetime
+import torch
+import torchvision.transforms as transforms
+import numpy as np
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
@@ -262,3 +265,53 @@ def with_timeout(timeout):
             return result[0]
         return wrapper
     return decorator
+
+
+def convert_pil_to_base64(image):
+    # convert pil image to base64
+    buffered = BytesIO()
+    image.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue())
+    return img_str.decode('utf-8')
+
+
+def get_vision_input(vision_input):
+    if isinstance(vision_input, Image.Image):
+        return [vision_input]
+    elif isinstance(vision_input, torch.Tensor):
+        video_tensor_list = vision_input.tolist()
+        transform = transforms.ToPILImage()
+        return [transform(tensor) for tensor in video_tensor_list]
+    elif isinstance(vision_input, np.ndarray):
+        vision_input = torch.from_numpy(vision_input)
+        video_tensor_list = [vision_input[i] for i in range(vision_input.shape[0])]
+        return [Image.fromarray(frame.numpy()) for frame in video_tensor_list]
+    elif isinstance(vision_input, list) and all(isinstance(img, Image.Image) for img in vision_input):
+        return vision_input
+    elif type(vision_input) == bytes:
+        vision_input = io.BytesIO(vision_input)
+        import datetime
+        cur_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        temp_file = f"/tmp/wvarena/video/{str(cur_time)}.mp4"
+        import os
+        if not os.path.exists(os.path.dirname(temp_file)):
+            os.makedirs(os.path.dirname(temp_file))
+        with open(temp_file, "wb") as output_file:
+            output_file.write(vision_input.getvalue())
+        cap = cv2.VideoCapture(temp_file)
+        
+        image_list = []
+        num_frames = 8 # Default sampling 8 frames
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        sample_interval = total_frames // num_frames
+        for i in range(num_frames):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, i * sample_interval)
+            ret, frame = cap.read()
+            if ret:
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image = Image.fromarray(frame_rgb)
+                image_list.append(image)
+            else:
+                print(f"Error: Could not read frame at position {i * sample_interval}")
+
+        return image_list
