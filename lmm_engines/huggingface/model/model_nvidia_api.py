@@ -120,7 +120,12 @@ class NvidiaAPIAdapter(BaseModelAdapter):
             payload["do_sample"] = params["do_sample"]
             
         response = requests.post(self.invoke_url, headers=headers, json=payload)
-        text = convert_response_to_text(response, stream)
+        if response.status_code == 200:
+            text = convert_response_to_text(response, stream)
+        else:
+            print("Failed to connect, status code:", response.status_code)
+            print(response.json())
+            return {"text": None}
 
         return {"text": text}
         

@@ -166,3 +166,4 @@ cython_debug/
 /test*
 /bore_logs
 /workers
+/run_commands.sh
