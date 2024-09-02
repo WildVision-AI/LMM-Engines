@@ -403,6 +403,7 @@ from .model_gemini import GeminiAdapter
 from .model_llava_v1_5 import LLaVAv15Adapter
 from .model_llava_v1_6 import LLaVAv16Adapter
 from .model_qwenvl import QwenVLAdapter
+from .model_qwen2vl import Qwen2VLAdapter
 from .model_minicpm import MiniCPMAdapter
 from .model_uform import UFormAdapter
 from .model_deepseekvl import DeepSeekVLAdapter
@@ -436,6 +437,7 @@ register_model_adapter(GeminiAdapter)
 register_model_adapter(LLaVAv15Adapter)
 register_model_adapter(LLaVAv16Adapter)
 register_model_adapter(QwenVLAdapter)
+register_model_adapter(Qwen2VLAdapter)
 register_model_adapter(InstructBLIPAdapter)
 register_model_adapter(CogVLMAdapter)
 register_model_adapter(CogVLM2VideoAdapter)
