@@ -140,6 +140,7 @@ More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingfac
 - [x] add support for [model_llavanextvideoqwen.py](./lmm_engines/huggingface/model/model_llavanextvideoqwen.py) (ontributed by dongfu, on 2024-07-28)
 - [x] add support for [model_nvidia_api.py](./lmm_engines/huggingface/model/model_nvidia_api.py) (contributed by jing gu, on 2024-07-28)
 - [x] add support for [model_internvl2.py](./lmm_engines/huggingface/model/model_internvl2.py) (contributed by chenhui, on 2024-08-05)
+- [x] add support for [model_qwen2vl.py](./lmm_engines/huggingface/model/model_qwen2vl.py) (contributed by [Yingzi Ma](https://github.com/gray311), on 2024-08-05)
 - [ ] add support for [model_bunny.py](./lmm_engines/huggingface/model/model_bunny)
 - [ ] add support for [model_deepseekvl.py](./lmm_engines/huggingface/model/model_deepseekvl)
 - [ ] add support for [model_idefics.py](./lmm_engines/huggingface/model/model_idefics)
