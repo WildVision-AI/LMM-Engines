@@ -4,6 +4,7 @@ import json
 import base64
 import os
 import uuid
+import queue
 from io import BytesIO
 from .model_adapter import BaseModelAdapter, register_model_adapter
 from ..conversation import get_conv_template, Conversation
@@ -17,6 +18,10 @@ Qwen2VL_MODEL_LIST = (
     "Qwen2-VL-2B-Instruct",
     "Qwen2-VL-7B-Instruct"
 )
+
+
+class GeneratorError(Exception):
+    pass
 class Qwen2VLAdapter(BaseModelAdapter):
     """The model adapter for Qwen2VL"""
 
@@ -31,7 +36,7 @@ class Qwen2VLAdapter(BaseModelAdapter):
         if not from_pretrained_kwargs.get("device_map"):
             from_pretrained_kwargs["device_map"] = "cuda"
         self.torch_dtype = from_pretrained_kwargs["torch_dtype"]
-        self.model = Qwen2VLForConditionalGeneration.from_pretrained(model_path)
+        self.model = Qwen2VLForConditionalGeneration.from_pretrained(model_path, **from_pretrained_kwargs)
         self.processor = AutoProcessor.from_pretrained(model_path)
         
         return self.model
@@ -127,7 +132,10 @@ class Qwen2VLAdapter(BaseModelAdapter):
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
         print(output_text)
-        os.remove(tmp_img_save_path)
+        try:
+            os.remove(tmp_img_save_path)
+        except:
+            pass
 
         return {"text": output_text}
     
@@ -209,7 +217,13 @@ class Qwen2VLAdapter(BaseModelAdapter):
         tokenizer = self.processor.tokenizer
         streamer = TextIteratorStreamer(tokenizer, timeout=20.0, skip_prompt=True, skip_special_tokens=True)
 
-        gen_kwargs = {'max_new_tokens': max_new_tokens, 'streamer': streamer, **inputs}
+        gen_kwargs = {
+            'max_new_tokens': max_new_tokens, 
+            'streamer': streamer, 
+            'temperature': temperature,
+            'top_p': top_p,
+            'do_sample': do_sample,
+            **inputs}
 
         thread = Thread(target=self.model.generate, kwargs=gen_kwargs)
         thread.start()
@@ -218,11 +232,16 @@ class Qwen2VLAdapter(BaseModelAdapter):
         for new_text in streamer:
             generated_text += new_text
             yield {"text": generated_text}
+        thread.join()
+        try:
+            os.remove(tmp_img_save_path)
+        except:
+            pass
 
     def get_info(self):
 
         return {
-            "type": "image",
+            "type": "image;video",
             "author": "Anonymous",
             "organization": "Anonymous",
             "model_size": None,
@@ -240,4 +259,6 @@ if __name__ == "__main__":
     test_adapter(model_adapter, model_path, device)
 """
 python -m lmm_engines.huggingface.model.model_qwen2vl
+
+bash start_worker_on_arena.sh Qwen/Qwen2-VL-7B-Instruct 41414
 """

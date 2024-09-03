@@ -114,18 +114,21 @@ set `use_cache=True` to enable output cache. The cache will be stored in `~/lmm_
 
 ## Controbute a model
 
-- If you are contributing a new image model, copy the [lmm_engines/huggingface/model/dummy_image_model.py](./lmm_engines/huggingface/model/dummy_image_model.py) and modify it.
-- If you are contributing a new video model, copy the [lmm_engines/huggingface/model/dummy_video_model.py](./lmm_engines/huggingface/model/dummy_video_model.py) and modify it.
+- If you are contributing a new image model, copy the [lmm_engines/huggingface/model/dummy_image_model.py](./lmm_engines/huggingface/model/dummy_image_model.py) and modify it. (the `type` in `get_info` should be `image`)
+- If you are contributing a new video model, copy the [lmm_engines/huggingface/model/dummy_video_model.py](./lmm_engines/huggingface/model/dummy_video_model.py) and modify it. (the `type` in `get_info` should be `video`)
+- If the model is both an image and video model, set the `type` in `get_info` to `image;video`. (example implementation: [lmm_engines/huggingface/model/model_qwen2vl.py](./lmm_engines/huggingface/model/model_qwen2vl.py))
 - Four functions to implement:
     - `load_model(self, model_path: str, device: str, from_pretrained_kwargs: Dict[str, Any]) -> None`
     - `generate(self, messages: List[Dict[str, Any]], **kwargs) -> List[Dict[str, Any]]`
     - `generate_image(self, image: Image.Image, **kwargs) -> Image.Image`
     - `generate_video(self, video: List[Image.Image], **kwargs) -> List[Image.Image]`
+    - `get_info(self) -> Dict[str, Any]`
 - test the model adapter: see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)
 - add registration at the bottom of [`lmm_engines/huggingface/model/model_adapter.py`](./lmm_engines/huggingface/model/model_adapter.py)
+- add model-specific dependencies in [`./lmm_engines/model_requirements/{model_name}.txt`](./lmm_engines/model_requirements/)
 - Connect to Wildvision Arena and be one arena competitor: `bash start_worker_on_arena.sh ${model_name} ${model_port}`
 
-(Note: we don't care the internal details of these 4 functions, as long as it can receive params and return the expected results as specified in the function signature.)
+(Note: we don't care the internal details of these 5 functions, as long as it can receive params and return the expected results as specified in the function signature.)
 
 
 More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingface/README.md)

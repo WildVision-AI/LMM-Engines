@@ -38,12 +38,14 @@ def test_adapter(
 
     print("\n## Testing model get_info() method...")
     model_info = model_adapter.get_info()
-    if not model_info['type'] in ['image', 'video']:
+    available_model_types = ['image', 'video']
+    if not any(model_type in model_info['type'] for model_type in available_model_types):
         raise ValueError(f"The 'type' key in the get_info() returning dictionary should be either 'image' or 'video'. but got '{model_info['type']}'")
     model_type = model_info['type']
     print("### Model get_info() method passed.")
     
-    if model_type == "image":
+    if "image" in model_type:
+        print("Testing generation with image...")
         # image_url = "https://llava.hliu.cc/file=/nobackup/haotian/tmp/gradio/ca10383cc943e99941ecffdc4d34c51afb2da472/extreme_ironing.jpg"
         # image = Image.open(BytesIO(requests.get(image_url).content))
         image = Image.open(test_image_path)
@@ -56,7 +58,22 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
-    elif model_type == "video":
+        print("\n## Testing model generate() method...")
+        generated_text = model_adapter.generate(params)
+        print("### Final generated text: \n", generated_text['text'])
+        
+        print("\n## Testing model generate_stream() method")
+        streamer = model_adapter.generate_stream(params)
+        generated_text = ""
+        for text in streamer:
+            added_text = text['text'][len(generated_text):]
+            generated_text = text['text']
+            time.sleep(0.03)
+            print(added_text, end='', flush=True)
+        print("\n### Final generated text via stream: \n", generated_text)
+        
+    if 'video' in model_type:
+        print("Testing generation with video...")
         video_path = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
         encoded_video = encode_video(video_path)
         params = {
@@ -68,20 +85,16 @@ def test_adapter(
             "top_p": 1.0,
             "max_new_tokens": 200,
         }
-    else:
-        raise ValueError(f"Model type '{model_type}' is not supported.")
-    print("\n## Testing model generate() method...")
-    generated_text = model_adapter.generate(params)
-    print("### Final generated text: \n", generated_text['text'])
-    
-    print("\n## Testing model generate_stream() method")
-    streamer = model_adapter.generate_stream(params)
-    generated_text = ""
-    for text in streamer:
-        added_text = text['text'][len(generated_text):]
-        generated_text = text['text']
-        time.sleep(0.03)
-        print(added_text, end='', flush=True)
-    print("\n### Final generated text via stream: \n", generated_text)
-    
-    
+        print("\n## Testing model generate() method...")
+        generated_text = model_adapter.generate(params)
+        print("### Final generated text: \n", generated_text['text'])
+        
+        print("\n## Testing model generate_stream() method")
+        streamer = model_adapter.generate_stream(params)
+        generated_text = ""
+        for text in streamer:
+            added_text = text['text'][len(generated_text):]
+            generated_text = text['text']
+            time.sleep(0.03)
+            print(added_text, end='', flush=True)
+        print("\n### Final generated text via stream: \n", generated_text)

@@ -1,7 +1,9 @@
+import json
 from setuptools import setup, find_packages
 
 model_specific_requirement_files = {
-    "cogvlm2-video": "lmm_engines/huggingface/model/videollm_utils/cogvlm/requirements.txt"
+    "cogvlm2-video": "lmm_engines/huggingface/model/videollm_utils/cogvlm/requirements.txt",
+    "qwen2vl": "lmm_engines/model_requirements/qwen2vl.txt",
 }
 
 extra_requirements = {}
