@@ -89,6 +89,8 @@ class ModelWorker(BaseModelWorker):
             self.init_heart_beat()
 
     def generate_stream_gate(self, params):
+        print(params['prompt']['text'])
+        print({k: v for k, v in params.items() if k != 'prompt'})
         if not params['model'] in self.model_names:
             ret = {
                 "text": None,
@@ -142,6 +144,8 @@ class ModelWorker(BaseModelWorker):
             
 
     def generate_gate(self, params):
+        print(params['prompt']['text'])
+        print({k: v for k, v in params.items() if k != 'prompt'})
         resposne = self.adapter.generate(params)
         return resposne
 

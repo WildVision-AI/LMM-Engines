@@ -106,12 +106,16 @@ class LLaVANextVideoQwenAdapter(BaseModelAdapter):
         generation_kwargs = params.copy()
         generation_kwargs.pop("prompt")
         question = prompt
+        if "frame_num" in generation_kwargs:
+            frame_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = 32
         
 
         # Check if the video exists
         if os.path.exists(video_path):
             # import pdb;pdb.set_trace()
-            video = load_video(video_path, 32)
+            video = load_video(video_path, frame_num)
             video = self.image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().to(self.model.device)
             video = [video]
 
@@ -184,11 +188,15 @@ class LLaVANextVideoQwenAdapter(BaseModelAdapter):
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
         generation_kwargs["streamer"] = streamer
         
+        if "frame_num" in generation_kwargs:
+            frame_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = 32
 
         # Check if the video exists
         if os.path.exists(video_path):
             # import pdb;pdb.set_trace()
-            video = load_video(video_path, 32)
+            video = load_video(video_path, frame_num)
             video = self.image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().to(self.model.device)
             video = [video]
 

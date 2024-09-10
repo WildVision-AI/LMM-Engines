@@ -80,6 +80,11 @@ class CogVLM2VideoAdapter(BaseModelAdapter):
         prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
         generation_kwargs.pop("prompt")
+
+        if "frame_num" in generation_kwargs:
+            faem_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = None
         strategy = "chat"
         video = load_video(video_path, strategy=strategy)
 
@@ -129,6 +134,11 @@ class CogVLM2VideoAdapter(BaseModelAdapter):
         strategy = "chat"
         video = load_video(video_path, strategy=strategy)
 
+        if "frame_num" in generation_kwargs:
+            faem_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = None
+            
         history = []
         inputs = self.model.build_conversation_input_ids(
             tokenizer = self.tokenizer,
