@@ -16,7 +16,7 @@ from openai import OpenAI
 
 LLAVA_API_MODEL_LIST = (
     "llava-next-72b",
-    "llava-onevision-qwen2-72b-ov",
+    "llava-onevision-qwen2-72b-ov-chat",
 )
 
 class LlavaAPIAdapter(BaseModelAdapter):
@@ -106,7 +106,12 @@ class LlavaAPIAdapter(BaseModelAdapter):
         Returns:
             {"text": ...}
         """
-        vision_input = decode_image(params["prompt"]["image"])
+        
+        if params["prompt"].get("image"):
+            vision_input = decode_image(params["prompt"]["image"])
+        else:
+            vision_input = BytesIO(base64.b64decode(json.loads(params["prompt"]["video"])))
+        
         image_list = get_vision_input(vision_input)
 
         prompt = params["prompt"]["text"]
@@ -146,7 +151,7 @@ class LlavaAPIAdapter(BaseModelAdapter):
 
     def get_info(self):
         return {
-            "type": "image",
+            "type": "image;video",
             "author": "Anonymous",
             "organization": "Anonymous",
             "model_size": None,
@@ -159,7 +164,7 @@ if __name__ == "__main__":
     from PIL import Image
     device = "cuda"
 
-    model_path = "llava-onevision-qwen2-72b-ov"
+    model_path = "llava-onevision-qwen2-72b-ov-chat"
     model_adapter = LlavaAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     
