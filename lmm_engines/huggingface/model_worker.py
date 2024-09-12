@@ -25,6 +25,7 @@ from .utils import (
     build_logger,
     get_context_length,
     str_to_torch_dtype,
+    preprocess_vision_arena_params,
 )
 
 worker_id = str(uuid.uuid4())[:8]
@@ -89,7 +90,15 @@ class ModelWorker(BaseModelWorker):
             self.init_heart_beat()
 
     def generate_stream_gate(self, params):
+        params = preprocess_vision_arena_params(params)
+        print("Text:")
         print(params['prompt']['text'])
+        if "image" in params['prompt']:
+            print("Image:")
+            print(params['prompt']['image'][:100])
+        if "video" in params['prompt']:
+            print("Video:")
+            print(params['prompt']['video'][:100])
         print({k: v for k, v in params.items() if k != 'prompt'})
         if not params['model'] in self.model_names:
             ret = {
@@ -144,6 +153,7 @@ class ModelWorker(BaseModelWorker):
             
 
     def generate_gate(self, params):
+        params = preprocess_vision_arena_params(params)
         print(params['prompt']['text'])
         print({k: v for k, v in params.items() if k != 'prompt'})
         resposne = self.adapter.generate(params)

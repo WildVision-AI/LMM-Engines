@@ -403,7 +403,12 @@ from .model_gemini import GeminiAdapter
 from .model_llava_v1_5 import LLaVAv15Adapter
 from .model_llava_v1_6 import LLaVAv16Adapter
 from .model_qwenvl import QwenVLAdapter
-from .model_qwen2vl import Qwen2VLAdapter
+try:
+    from .model_qwen2vl import Qwen2VLAdapter
+    register_model_adapter(Qwen2VLAdapter)
+except ImportError:
+    print("Qwen2VLAdapter failed to import, update transformers to the latest version if you want to use it.")
+
 from .model_minicpm import MiniCPMAdapter
 from .model_uform import UFormAdapter
 from .model_deepseekvl import DeepSeekVLAdapter
@@ -429,6 +434,7 @@ from .model_nvidia_api import (
 )
 from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
 from .model_internvl2 import InternVL2Adapter
+from .model_pixtral import PixtralAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -437,7 +443,6 @@ register_model_adapter(GeminiAdapter)
 register_model_adapter(LLaVAv15Adapter)
 register_model_adapter(LLaVAv16Adapter)
 register_model_adapter(QwenVLAdapter)
-register_model_adapter(Qwen2VLAdapter)
 register_model_adapter(InstructBLIPAdapter)
 register_model_adapter(CogVLMAdapter)
 register_model_adapter(CogVLM2VideoAdapter)
@@ -465,3 +470,4 @@ register_model_adapter(Neva22BNvidiaAPIAdapter)
 register_model_adapter(Phi3VisionNvidiaAPIAdapter)
 register_model_adapter(PaliGemmaNvidiaAPIAdapter)
 register_model_adapter(InternVL2Adapter)
+register_model_adapter(PixtralAdapter)
