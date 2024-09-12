@@ -35,10 +35,16 @@ class PixtralAdapter(BaseModelAdapter):
             model: A nn.Module model or huggingface PreTrainedModel model
         """
         self.model_name = model_path
+        max_img_per_msg = 5
+        max_tokens_per_img = 4096
         worker_addr, proc = launch_vllm_worker(
             model_path,
             num_gpus=1,
-            additional_args=["--max-model-len", "65536", "--tokenizer-mode", "mistral"],
+            additional_args=[
+                "--max-model-len", "65536", "--tokenizer-mode", "mistral",
+                "--limit-mm-per-prompt", f"image={max_img_per_msg}",
+                "--max-num-batched-tokens", f"{max_img_per_msg * max_tokens_per_img}",
+                ],
         )
         self.worker_addr = worker_addr
         self.proc = proc
@@ -61,7 +67,7 @@ class PixtralAdapter(BaseModelAdapter):
         """
         # add your custom generation code here
         image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
-        image = image.resize((3844, 2408))
+        # image = image.resize((3844, 2408))
         image_url = f"data:image/jpeg;base64,{json.loads(encode_image(image, image_format='JPEG'))}"
         prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
@@ -103,7 +109,7 @@ class PixtralAdapter(BaseModelAdapter):
         """
         # add your custom generation code here
         image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
-        image = image.resize((3844, 2408)) # for the image shape, otherwise bug
+        # image = image.resize((3844, 2408)) # for the image shape, otherwise bug
         image_url = f"data:image/jpeg;base64,{json.loads(encode_image(image, image_format='JPEG'))}"
         prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
