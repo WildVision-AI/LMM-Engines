@@ -25,7 +25,8 @@ def test_adapter(
         expected_adapter_name = model_adapter.__class__.__name__
         matched_adapter_name = matched_adapter.__class__.__name__
         ERROR_MSG = f"model path is {model_path}, expected model adapter '{expected_adapter_name}', but got model adapter '{matched_adapter_name}', " + \
-            f"Please check the `match()` method of '{expected_adapter_name}'."
+            "Did you forget to register the model adapter?\n" + \
+            f"If yes, please check the `match()` method of '{expected_adapter_name}'."
         raise ValueError(ERROR_MSG)
     print("### Model match() method passed.")
     

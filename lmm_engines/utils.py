@@ -105,6 +105,10 @@ def encode_image(image:Image.Image, image_format="PNG") -> str:
     im_64 = base64.b64encode(im_bytes).decode("utf-8")
     return json.dumps(im_64)
 
+def image_to_url(image:Image.Image, image_format="PNG") -> str:
+    image_format = image.format.lower() if image.format else image_format
+    return f"data:image/{image_format};base64,{encode_image(image, image_format=image_format)}"
+
 def decode_image(encoded_image:str) -> Image.Image:
     im_64 = json.loads(encoded_image)
     im_bytes = base64.b64decode(im_64)

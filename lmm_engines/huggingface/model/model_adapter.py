@@ -163,10 +163,9 @@ def register_model_adapter(cls):
 def get_model_adapter(model_path: str) -> BaseModelAdapter:
     """Get a model adapter for a model_path."""
     model_path_basename = os.path.basename(os.path.normpath(model_path))
-
     # Try the basename of model_path at first
     for adapter in model_adapters:
-        if adapter.match(model_path_basename) and type(adapter) != BaseModelAdapter:
+        if adapter.match(model_path) and type(adapter) != BaseModelAdapter:
             print(f"Using model adapter: {adapter.__class__.__name__}")
             return adapter
 
@@ -435,6 +434,7 @@ from .model_nvidia_api import (
 from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
 from .model_internvl2 import InternVL2Adapter
 from .model_pixtral import PixtralAdapter
+from .model_hyperbolic_api import HyperbolicAPIAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -471,3 +471,4 @@ register_model_adapter(Phi3VisionNvidiaAPIAdapter)
 register_model_adapter(PaliGemmaNvidiaAPIAdapter)
 register_model_adapter(InternVL2Adapter)
 register_model_adapter(PixtralAdapter)
+register_model_adapter(HyperbolicAPIAdapter)  # Register HyperbolicAPIAdapter

@@ -67,7 +67,7 @@ class ModelWorker(BaseModelWorker):
         )
 
         logger.info(f"Loading the model {self.model_names} on worker {worker_id} ...")
-    
+
         self.adapter = load_adapter(
             model_path,
             revision=revision,
@@ -85,6 +85,8 @@ class ModelWorker(BaseModelWorker):
         self.embed_in_truncate = embed_in_truncate
         self.seed = seed
         self.worker_info = self.adapter.get_info()
+        if hasattr(self.adapter, "get_model_names"):
+            self.model_names = self.adapter.get_model_names()
 
         if not no_register:
             self.init_heart_beat()
