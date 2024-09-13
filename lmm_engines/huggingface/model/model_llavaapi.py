@@ -59,7 +59,11 @@ class LlavaAPIAdapter(BaseModelAdapter):
         Returns:
             {"text": ...}
         """
-        vision_input = decode_image(params["prompt"]["image"])
+        if params["prompt"].get("image"):
+            vision_input = decode_image(params["prompt"]["image"])
+        else:
+            vision_input = BytesIO(base64.b64decode(json.loads(params["prompt"]["video"])))
+        
         image_list = get_vision_input(vision_input)
 
         prompt = params["prompt"]["text"]
