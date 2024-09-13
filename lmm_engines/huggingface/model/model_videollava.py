@@ -177,5 +177,5 @@ if __name__ == "__main__":
 """
 python -m lmm_engines.huggingface.model.model_videollava
 # connect to wildvision arena
-bash start_worker_on_arena.sh LanguageBind/Video-LLaVA-7B-hf 41411 1
+bash start_worker_on_arena.sh LanguageBind/Video-LLaVA-7B-hf 42007 1
 """

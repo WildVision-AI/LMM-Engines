@@ -132,4 +132,6 @@ if __name__ == "__main__":
 """
 # local testing
 python -m lmm_engines.huggingface.model.model_internvl2
+# connect to wildvision arena
+bash start_worker_on_arena.sh OpenGVLab/InternVL2-8B 42003 1
 """
