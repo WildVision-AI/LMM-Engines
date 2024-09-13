@@ -4,9 +4,6 @@ import torch
 import random
 import json
 import openai
-import vllm
-import signal
-import regex as re
 from pathlib import Path
 from typing import List
 from .utils import SubprocessMonitor, ChatTokenizer, with_timeout, get_function_arg_names
@@ -34,6 +31,9 @@ def launch_vllm_worker(
     Returns:
         the address of the launched model
     """
+    # check if vllm is installed
+    if "vllm" not in sys.modules:
+        raise ImportError("vllm package is not installed. Please install it via `pip install vllm`.")
     print(f"Launching model {model_name}")
     worker_addr = f"http://{host}:{port}"
     log_file = Path(os.path.abspath(__file__)).parent / "logs" / f"{model_name}.log"
