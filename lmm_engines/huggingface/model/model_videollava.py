@@ -90,6 +90,11 @@ class VideoLLaVAAdapter(BaseModelAdapter):
         generation_kwargs = params.copy()
         generation_kwargs.pop("prompt")
         
+        if "frame_num" in generation_kwargs:
+            frame_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = 32
+
         container = av.open(video_path)
 
         # sample uniformly 8 frames from the video
@@ -98,6 +103,7 @@ class VideoLLaVAAdapter(BaseModelAdapter):
         clip = read_video_pyav(container, indices)
 
         final_prompt = f"USER: <video>{prompt} ASSISTANT:"
+        
         inputs = self.processor(text=final_prompt, videos=clip, return_tensors="pt")
         inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
 
@@ -122,6 +128,11 @@ class VideoLLaVAAdapter(BaseModelAdapter):
         prompt = params["prompt"]["text"]
         generation_kwargs = params.copy()
         generation_kwargs.pop("prompt")
+        
+        if "frame_num" in generation_kwargs:
+            frame_num = generation_kwargs.pop("frame_num")
+        else:
+            frame_num = 32
         # add streamer
         streamer = TextIteratorStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
         generation_kwargs["streamer"] = streamer
