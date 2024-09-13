@@ -364,9 +364,5 @@ def preprocess_vision_arena_params(params):
         text = text[:-len("### Assistant:")].strip('\n ')
     params["prompt"]["text"] = text
     print("Preprocessed text: ", text)
-    from ..utils import decode_image
-    image = decode_image(params["prompt"]["image"]) # This image will be decoded into a PIL image
-    print("Image shape: ", image.size)
-    image.save("/home/dongfuj/WorkSpace/LMM-Engines/test.jpg")
     return params
         
