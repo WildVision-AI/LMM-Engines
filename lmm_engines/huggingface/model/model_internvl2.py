@@ -126,8 +126,9 @@ if __name__ == "__main__":
     from PIL import Image
     model_path = "OpenGVLab/InternVL2-8B"
     device = "cuda"
+    num_gpus = torch.cuda.device_count()
     model_adapter = InternVL2Adapter()
-    test_adapter(model_adapter, model_path, device)
+    test_adapter(model_adapter, model_path, device, num_gpus=num_gpus)
     
 """
 # local testing
