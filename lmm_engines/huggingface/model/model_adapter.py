@@ -435,6 +435,7 @@ from .model_llavanextvideoqwen import LLaVANextVideoQwenAdapter
 from .model_internvl2 import InternVL2Adapter
 from .model_pixtral import PixtralAdapter
 from .model_hyperbolic_api import HyperbolicAPIAdapter
+from .model_llavaonevision import LLaVAOnevisionAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -472,3 +473,4 @@ register_model_adapter(PaliGemmaNvidiaAPIAdapter)
 register_model_adapter(InternVL2Adapter)
 register_model_adapter(PixtralAdapter)
 register_model_adapter(HyperbolicAPIAdapter)  # Register HyperbolicAPIAdapter
+register_model_adapter(LLaVAOnevisionAdapter)
