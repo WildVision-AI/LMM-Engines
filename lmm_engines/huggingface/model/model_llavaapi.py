@@ -17,6 +17,7 @@ from openai import OpenAI
 LLAVA_API_MODEL_LIST = (
     "llava-next-72b",
     "llava-onevision-qwen2-72b-ov-chat",
+    # "llava-onevision-72b-ov",
 )
 
 class LlavaAPIAdapter(BaseModelAdapter):
@@ -86,7 +87,7 @@ class LlavaAPIAdapter(BaseModelAdapter):
 
 
         response = self.model.chat.completions.create(
-            model=self.model_name,
+            model="llava-onevision-72b-ov", #self.model_name,
             messages=input_messages,
             max_tokens=min(int(generation_kwargs.get("max_new_tokens", 512)), 512),
             temperature=float(generation_kwargs.get("temperature", 0.3)),
@@ -168,10 +169,12 @@ if __name__ == "__main__":
     from PIL import Image
     device = "cuda"
 
-    model_path = "llava-onevision-qwen2-72b-ov-chat"
+    model_path = "llava-onevision-72b-ov"
     model_adapter = LlavaAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     
 """
-python -m lmm_engines.huggingface.model.model_llavaapi
+bash start_worker_on_arena.sh llava-onevision-72b-ov 42001 1
+
+bash start_worker_on_arena.sh llava-onevision-qwen2-72b-ov-chat 42001 1
 """
