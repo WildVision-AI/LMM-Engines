@@ -37,7 +37,7 @@ class LLaVAOnevisionAdapter(BaseModelAdapter):
     """The model adapter for LLaVAOneVision"""
 
     def match(self, model_path: str):
-        return "LLaVA-Onevision".lower() in model_path.lower()
+        return "llava-hf/llava-onevision".lower() in model_path.lower()
 
     def load_model(self, model_path: str, device:str="cuda", from_pretrained_kwargs: dict={}):
         """
