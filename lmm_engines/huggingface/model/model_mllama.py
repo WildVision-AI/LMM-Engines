@@ -13,6 +13,7 @@ import os
 
 MLLAMA_MODEL_LIST = (
     "meta-llama/Llama-3.2-11B-Vision-Instruct",
+    "meta-llama/Llama-Guard-3-11B-Vision",
 )
 
 class MllamaAdapter(BaseModelAdapter):
@@ -125,7 +126,7 @@ class MllamaAdapter(BaseModelAdapter):
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    model_path = "meta-llama/Llama-3.2-11B-Vision-Instruct"
+    model_path = "meta-llama/Llama-Guard-3-11B-Vision"
     device = "cuda"
     model_adapter = MllamaAdapter()
     test_adapter(model_adapter, model_path, device)
