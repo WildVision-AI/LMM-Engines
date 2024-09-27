@@ -11,15 +11,15 @@ from threading import Thread
 import openai
 import os
 
-LLAMA3_MODEL_LIST = (
-    "meta-llama/Llama-3.2-11B-Vision-Instruct"
+MLLAMA_MODEL_LIST = (
+    "meta-llama/Llama-3.2-11B-Vision-Instruct",
 )
 
-class Llama3Vision(BaseModelAdapter):
-    """The model adapter for Llama3Vision models
+class MllamaAdapter(BaseModelAdapter):
+    """The model adapter for Mllama models
     """
     def match(self, model_path: str):
-        return model_path in LLAMA3_MODEL_LIST
+        return model_path in MLLAMA_MODEL_LIST
 
     def load_model(self, model_path: str, device:str="cuda", from_pretrained_kwargs: dict={}):
         """
@@ -127,10 +127,10 @@ if __name__ == "__main__":
     from PIL import Image
     model_path = "meta-llama/Llama-3.2-11B-Vision-Instruct"
     device = "cuda"
-    model_adapter = Llama3Vision()
+    model_adapter = MllamaAdapter()
     test_adapter(model_adapter, model_path, device)
     
 """
 # local testing
-python -m lmm_engines.huggingface.model.model_llama3vision
+python -m lmm_engines.huggingface.model.model_mllama
 """
