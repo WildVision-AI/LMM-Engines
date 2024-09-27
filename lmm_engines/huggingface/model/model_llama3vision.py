@@ -10,13 +10,16 @@ from transformers import MllamaForConditionalGeneration, AutoProcessor, TextIter
 from threading import Thread
 import openai
 import os
-import openai
+
+LLAMA3_MODEL_LIST = (
+    "meta-llama/Llama-3.2-11B-Vision-Instruct"
+)
 
 class Llama3Vision(BaseModelAdapter):
     """The model adapter for Llama3Vision models
     """
     def match(self, model_path: str):
-        return "llama-3.2".lower() in model_path.lower()
+        return model_path in LLAMA3_MODEL_LIST
 
     def load_model(self, model_path: str, device:str="cuda", from_pretrained_kwargs: dict={}):
         """
