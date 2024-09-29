@@ -26,7 +26,7 @@ from transformers.generation.utils import GenerateOutput
 
 # from ...constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from ..llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
-from transformers import Qwen2Config, Qwen2Model, Qwen2ForCausalLM
+from transformers import Qwen2Config, Qwen2Model, Qwen2ForCausalLM, PretrainedConfig
 
 # from .qwen.modeling_qwen import QWenLMHeadModel, QWenModel
 # from .qwen.configuration_qwen import QWenConfig
@@ -48,8 +48,9 @@ class LlavaQwenForCausalLM(Qwen2ForCausalLM, LlavaMetaForCausalLM):
 
     def __init__(self, config):
         # import pdb;pdb.set_trace()
-        # super(Qwen2ForCausalLM, self).__init__(config)
-        Qwen2ForCausalLM.__init__(self, config)
+        config.text_config = PretrainedConfig.from_dict(config.text_config)
+        super(LlavaQwenForCausalLM, self).__init__(config)
+        # Qwen2ForCausalLM.__init__(self, config)
         config.model_type = "llava_qwen"
         config.rope_scaling = None
 

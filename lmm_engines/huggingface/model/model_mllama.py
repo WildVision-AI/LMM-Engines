@@ -72,6 +72,7 @@ class MllamaAdapter(BaseModelAdapter):
         inputs = self.processor(image, input_text, return_tensors="pt").to(self.model.device)
         generation_kwargs["temperature"] = None
         generation_kwargs["top_p"] = None
+        generation_kwargs.pop("stop")
         output = self.model.generate(**inputs, **generation_kwargs)
         generated_text = self.processor.decode(output[0], skip_special_tokens=True)
         return {"text": generated_text}
@@ -106,6 +107,7 @@ class MllamaAdapter(BaseModelAdapter):
         inputs = self.processor(image, input_text, return_tensors="pt").to(self.model.device)
         generation_kwargs["temperature"] = None
         generation_kwargs["top_p"] = None
+        generation_kwargs.pop("stop")
         thread = Thread(target=self.model.generate, kwargs={**inputs, **generation_kwargs})
         thread.start()
 
@@ -126,7 +128,7 @@ class MllamaAdapter(BaseModelAdapter):
 if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
-    model_path = "meta-llama/Llama-Guard-3-11B-Vision"
+    model_path = "meta-llama/Llama-3.2-11B-Vision-Instruct"
     device = "cuda"
     model_adapter = MllamaAdapter()
     test_adapter(model_adapter, model_path, device)
