@@ -169,7 +169,7 @@ if __name__ == "__main__":
     from .unit_test import test_adapter
     from PIL import Image
     model_path = "llava-hf/LLaVA-NeXT-Video-7B-hf"
-    device = "cuda:0"
+    device = "cuda"
     model_adapter = LLaVANextVideoAdapter()
     test_adapter(model_adapter, model_path, device)
     

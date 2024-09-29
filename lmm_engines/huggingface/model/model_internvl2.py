@@ -73,8 +73,8 @@ class InternVL2Adapter(BaseModelAdapter):
         from_pretrained_kwargs["trust_remote_code"] = True
         if is_flash_attn_2_available():
             from_pretrained_kwargs["use_flash_attn"] = True
-        if torch.cuda.device_count() > 1:
-            model_name = model_path.split("/")[1]
+        model_name = model_path.split("/")[1]
+        if model_name in ["InternVL2-40B", "InternVL2-Llama3-76B"]:
             device_map = split_model(model_name)
             from_pretrained_kwargs["device_map"] = device_map
         self.model = AutoModel.from_pretrained(
