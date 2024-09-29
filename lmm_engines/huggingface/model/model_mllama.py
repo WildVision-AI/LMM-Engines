@@ -72,7 +72,8 @@ class MllamaAdapter(BaseModelAdapter):
         inputs = self.processor(image, input_text, return_tensors="pt").to(self.model.device)
         generation_kwargs["temperature"] = None
         generation_kwargs["top_p"] = None
-        generation_kwargs.pop("stop")
+        if "stop" in generation_kwargs:
+            generation_kwargs.pop("stop")
         output = self.model.generate(**inputs, **generation_kwargs)
         generated_text = self.processor.decode(output[0], skip_special_tokens=True)
         return {"text": generated_text}
@@ -107,7 +108,8 @@ class MllamaAdapter(BaseModelAdapter):
         inputs = self.processor(image, input_text, return_tensors="pt").to(self.model.device)
         generation_kwargs["temperature"] = None
         generation_kwargs["top_p"] = None
-        generation_kwargs.pop("stop")
+        if "stop" in generation_kwargs:
+            generation_kwargs.pop("stop")
         thread = Thread(target=self.model.generate, kwargs={**inputs, **generation_kwargs})
         thread.start()
 
