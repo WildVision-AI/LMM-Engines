@@ -437,6 +437,7 @@ from .model_pixtral import PixtralAdapter
 from .model_hyperbolic_api import HyperbolicAPIAdapter
 from .model_llavaonevision import LLaVAOnevisionAdapter
 from .model_mllama import MllamaAdapter
+from .model_togetherapi import TogetherAPIAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -476,3 +477,4 @@ register_model_adapter(PixtralAdapter)
 register_model_adapter(HyperbolicAPIAdapter)  # Register HyperbolicAPIAdapter
 register_model_adapter(LLaVAOnevisionAdapter)
 register_model_adapter(MllamaAdapter)
+register_model_adapter(TogetherAPIAdapter)
