@@ -48,6 +48,7 @@ setup(
         'uvicorn',
         'datasets',
         'fastapi',
+        'together'
     ],
     extras_require={
         **extra_requirements,
