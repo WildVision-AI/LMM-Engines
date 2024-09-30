@@ -16,6 +16,7 @@ from together import Together
 from openai import OpenAI
 
 TOGETHER_API_MODEL_LIST = (
+    "meta-llama/Llama-Vision-Free",
     "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
     "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
 )
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     from PIL import Image
     device = "cuda"
 
-    model_path = "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo"
+    model_path = "meta-llama/Llama-Vision-Free"
     model_adapter = TogetherAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     
