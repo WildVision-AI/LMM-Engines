@@ -272,6 +272,8 @@ class AriaAdapter(BaseModelAdapter):
             generated_text = ''
             for new_text in streamer:
                 generated_text += new_text
+                if generated_text.endswith("<|im_end|>"):
+                    generated_text = generated_text[:-len("<|im_end|>")]
                 yield {"text": generated_text}
             thread.join()
     
