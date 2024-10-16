@@ -32,7 +32,9 @@ def launch_vllm_worker(
         the address of the launched model
     """
     # check if vllm is installed
-    if "vllm" not in sys.modules:
+    try:
+        import vllm
+    except ImportError: 
         raise ImportError("vllm package is not installed. Please install it via `pip install vllm`.")
     print(f"Launching model {model_name}")
     worker_addr = f"http://{host}:{port}"

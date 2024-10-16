@@ -438,6 +438,9 @@ from .model_hyperbolic_api import HyperbolicAPIAdapter
 from .model_llavaonevision import LLaVAOnevisionAdapter
 from .model_mllama import MllamaAdapter
 from .model_togetherapi import TogetherAPIAdapter
+from .model_aria import AriaAdapter
+from .model_vllm_aria import VLLMAriaAdapter
+from .model_vllm_molmo import VLLMMolmoAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -478,3 +481,6 @@ register_model_adapter(HyperbolicAPIAdapter)  # Register HyperbolicAPIAdapter
 register_model_adapter(LLaVAOnevisionAdapter)
 register_model_adapter(MllamaAdapter)
 register_model_adapter(TogetherAPIAdapter)
+register_model_adapter(AriaAdapter)
+register_model_adapter(VLLMAriaAdapter)
+register_model_adapter(VLLMMolmoAdapter)

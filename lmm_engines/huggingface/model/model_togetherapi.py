@@ -18,6 +18,7 @@ from openai import OpenAI
 TOGETHER_API_MODEL_LIST = (
     "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
     "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+    "meta-llama/Llama-Vision-Free"
 )
 
 class TogetherAPIAdapter(BaseModelAdapter):
@@ -27,11 +28,15 @@ class TogetherAPIAdapter(BaseModelAdapter):
         return model_path in TOGETHER_API_MODEL_LIST
 
     def load_model(self, model_path: str, device: str="cuda", from_pretrained_kwargs: dict={}, model_type: str="image"):
+        if model_path == "meta-llama/Llama-Vision-Free":
+            self.model_name = "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo"
+        else:
+            self.model_name = model_path
+        self.together_model_name = model_path
         api_key, api_base = None, None
         if "api_key" in from_pretrained_kwargs.keys():
             api_key = from_pretrained_kwargs
 
-        self.model_name = model_path
         self.model_type = model_type
 
         self.model = OpenAI(
@@ -80,9 +85,8 @@ class TogetherAPIAdapter(BaseModelAdapter):
                 ]
             },
         ]
-
         response = self.model.chat.completions.create(
-            model=self.model_name,
+            model=self.together_model_name,
             messages=messages,
         )
 
@@ -126,7 +130,7 @@ class TogetherAPIAdapter(BaseModelAdapter):
         ]
 
         response = self.model.chat.completions.create(
-            model=self.model_name,
+            model=self.together_model_name,
             messages=messages,
             stream=True,
         )
@@ -156,7 +160,7 @@ if __name__ == "__main__":
     from PIL import Image
     device = "cuda"
 
-    model_path = "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo"
+    model_path = "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo"
     model_adapter = TogetherAPIAdapter()
     test_adapter(model_adapter, model_path, device)
     

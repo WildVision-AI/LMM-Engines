@@ -167,3 +167,6 @@ cython_debug/
 /bore_logs
 /workers
 /run_commands.sh
+/*.png
+/*.txt
+/cached_video_frames
