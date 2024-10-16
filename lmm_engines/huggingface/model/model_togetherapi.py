@@ -16,6 +16,7 @@ from together import Together
 from openai import OpenAI
 
 TOGETHER_API_MODEL_LIST = (
+    "meta-llama/Llama-Vision-Free",
     "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
     "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
     "meta-llama/Llama-Vision-Free"
