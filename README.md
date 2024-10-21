@@ -165,3 +165,31 @@ More details to see [lmm_engines/huggingface/README.md](./lmm_engines/huggingfac
 - [ ] add support for [model_openai.py](./lmm_engines/huggingface/model/model_openai)
 - [ ] add support for [model_claude.py](./lmm_engines/huggingface/model/model_claude)
 - [ ] add support for [model_gemini.py](./lmm_engines/huggingface/model/model_gemini)
+
+
+
+## Citation
+
+If you found this repository useful, please consider cite our paper and resources:
+
+```bibtex
+
+@article{lu2024wildvision,
+  title={WildVision: Evaluating Vision-Language Models in the Wild with Human Preferences},
+  author={Lu, Yujie and Jiang, Dongfu and Chen, Wenhu and Wang, William Yang and Choi, Yejin and Lin, Bill Yuchen},
+  publisher={NeurIPS},
+  year={2024}
+}
+@misc{yujie2024wildvisionarena,
+    title={WildVision Arena: Benchmarking Multimodal LLMs in the Wild},
+    url={https://huggingface.co/spaces/WildVision/vision-arena/},
+    author={Lu, Yujie and Jiang, Dongfu and Chen, Hui and Ma, Yingzi and Gu, Jing and Xiao, Chaowei and Chen, Wenhu and Wang, William and Choi, Yejin and Lin, Bill Yuchen},
+    year={2024}
+}
+@misc{yujie2024wildvisionv2,
+    title={WildVision Data and Model},
+    url={https://huggingface.co/WildVision},
+    author={Lu, Yujie* and Jiang, Dongfu* and Chen, Hui and Fu, Xingyu and Ma, Yingzi and Gu, Jing and Saxon, Michael and Xiao, Chaowei and Chen, Wenhu and Choi, Yejin and Lin, Bill Yuchen and Eckstein, Miguel and Wang, William},
+    year={2024}
+}
+```
