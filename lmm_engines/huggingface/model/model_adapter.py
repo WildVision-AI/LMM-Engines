@@ -441,6 +441,7 @@ from .model_togetherapi import TogetherAPIAdapter
 from .model_aria import AriaAdapter
 from .model_vllm_aria import VLLMAriaAdapter
 from .model_vllm_molmo import VLLMMolmoAdapter
+from .model_ovis import OvisAdapter
 
 register_model_adapter(ClaudeAdapter)
 register_model_adapter(OpenAIAdapter)
@@ -484,3 +485,4 @@ register_model_adapter(TogetherAPIAdapter)
 register_model_adapter(AriaAdapter)
 register_model_adapter(VLLMAriaAdapter)
 register_model_adapter(VLLMMolmoAdapter)
+register_model_adapter(OvisAdapter)
